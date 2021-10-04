@@ -1,0 +1,1 @@
+## Contains Dockerfile for each coin's node container

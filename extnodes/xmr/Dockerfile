@@ -1,0 +1,1 @@
+FROM kannix/monero-full-node
