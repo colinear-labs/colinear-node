@@ -8,6 +8,8 @@ require (
 )
 
 require (
+	github.com/btcsuite/btcd v0.21.0-beta // indirect
+	github.com/btcsuite/btcutil v1.0.2 // indirect
 	github.com/oasislabs/ed25519 v0.0.0-20200302143042-29f6767a7c3e // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect

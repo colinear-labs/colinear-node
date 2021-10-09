@@ -24,3 +24,14 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+#######################
+#     CUSTOM STUFF    #
+#######################
+
+# Dev files
+*.swp
+.vscode/
+
+# Binaries
+xnode
