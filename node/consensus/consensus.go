@@ -1,6 +1,8 @@
 package consensus
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // snowball consensus - basic placeholders for now
 

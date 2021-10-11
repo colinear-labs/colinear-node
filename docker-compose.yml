@@ -5,27 +5,24 @@ services:
     build:
       context: "./extnodes/btc"
     ports:
+      - "127.0.0.1:5000:5000"
       - "8333:8333" # Definitely subject to change once go chain implementation is done
     mem_limit: 500000000
-    expose:
-      - "5000"
     profiles: ["btc"]
   eth:
     build: 
       context: "./extnodes/eth"
     ports:
       - "30303:30303" 
-    expose:
-      - "5001"
-    mem_limit: 50000000
+      - "127.0.0.1:5001:5001"
+    mem_limit: 500000000
     profiles: ["eth"]
   bch:
     build: 
       context: "./extnodes/bch"
     ports:
       - "8333:8333" 
-    expose:
-      - "5002"
+      - "127.0.0.1:5002:5002"
     mem_limit: 500000000
     profiles: ["bch"]
   doge:
@@ -33,8 +30,7 @@ services:
       context: "./extnodes/doge"
     ports:
       - "22556:22556" 
-    expose:
-      - "5003"
+      - "127.0.0.1:5003:5003"
     mem_limit: 500000000
     profiles: ["doge"]
   xmr:
@@ -42,8 +38,7 @@ services:
       context: "./extnodes/xmr"
     ports:
       - "18080:18080" 
-    expose:
-      - "5004"
+      - "127.0.0.1:5004:5004"
     mem_limit: 500000000
     profiles: ["xmr"]
   zec:
@@ -51,7 +46,6 @@ services:
       context: "./extnodes/zec"
     ports:
       - "8233:8233" 
-    expose:
-      - "5005"
+      - "127.0.0.1:5005:5005"
     mem_limit: 500000000
     profiles: ["zec"]

@@ -17,23 +17,23 @@ type Block struct {
 
 type Chain struct {
 	name     string
-	blocks20 []Block
+	blocks10 []Block
 }
 
 func NewChain(name string) *Chain {
-	c := Chain{name: name, blocks20: []Block{}}
+	c := Chain{name: name, blocks10: []Block{}}
 	return &c
 }
 
 // Set all blocks at once
 func (chain *Chain) SetBlocks(blocks []Block) {
-	if len(blocks) == 20 {
-		chain.blocks20 = blocks
+	if len(blocks) == 10 {
+		chain.blocks10 = blocks
 	}
 }
 
 // Cycles old old block `[0]` out and appends the latest block
 func (chain *Chain) NewBlock(block Block) {
-	chain.blocks20 = chain.blocks20[1 : len(chain.blocks20)-1]
-	chain.blocks20 = append(chain.blocks20, block)
+	chain.blocks10 = chain.blocks10[1 : len(chain.blocks10)-1]
+	chain.blocks10 = append(chain.blocks10, block)
 }
