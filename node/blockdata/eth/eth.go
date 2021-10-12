@@ -4,6 +4,7 @@ package eth
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/types"
@@ -45,7 +46,7 @@ func (chain *EthChain) newBlock(block EthBlock) {
 }
 
 func (chain *EthChain) Listen(port uint) {
-	client, err := ethclient.Dial("ws://127.0.0.1:5001/wsrpc")
+	client, err := ethclient.Dial(fmt.Sprintf("ws://127.0.0.1:%s/wsrpc", (string)(port)))
 	if err != nil {
 		panic(err)
 	}
