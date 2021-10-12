@@ -1,7 +1,7 @@
 FROM ethereum/client-go:v1.10.8
 
 ENTRYPOINT [ "geth", \
-    "--syncmode light", \
+    "--syncmode", "light", \
     "--snapshot=false", \
     "--ws", \
     "--ws.addr=0.0.0.0", \
