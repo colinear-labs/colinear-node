@@ -1,14 +1,26 @@
 version: "2.4"
 
 services:
+
+  xnode-dev: 
+    build:
+      context: "./node"
+    profiles: ["xnode-dev"]
+
+  xnode-prod: 
+    build:
+      context: "./node-prod"
+    profiles: ["xnode-prod"]
+
   btc:
     build:
       context: "./extnodes/btc"
     ports:
       - "127.0.0.1:5000:5000"
       - "8333:8333" # Definitely subject to change once go chain implementation is done
-    mem_limit: 500000000
+    mem_limit: 2000000000
     profiles: ["btc"]
+
   eth:
     build: 
       context: "./extnodes/eth"
@@ -17,35 +29,48 @@ services:
       - "127.0.0.1:5001:5001"
     mem_limit: 500000000
     profiles: ["eth"]
+
   bch:
     build: 
       context: "./extnodes/bch"
     ports:
       - "8333:8333" 
       - "127.0.0.1:5002:5002"
-    mem_limit: 500000000
+    mem_limit: 2000000000
     profiles: ["bch"]
+
+  ltc:
+    build:
+      context: "./extnodes/ltc"
+    ports:
+      - "9333:9333"
+      - "127.0.0.1:5003:5003"
+    mem_limit: 2000000000
+    profiles: ["ltc"]
+
   doge:
     build: 
       context: "./extnodes/doge"
     ports:
       - "22556:22556" 
-      - "127.0.0.1:5003:5003"
-    mem_limit: 500000000
+      - "127.0.0.1:5004:5004"
+    mem_limit: 2000000000
     profiles: ["doge"]
+
   xmr:
     build: 
       context: "./extnodes/xmr"
     ports:
       - "18080:18080" 
-      - "127.0.0.1:5004:5004"
+      - "127.0.0.1:5005:5005"
     mem_limit: 500000000
     profiles: ["xmr"]
+
   zec:
     build: 
       context: "./extnodes/zec"
     ports:
       - "8233:8233" 
-      - "127.0.0.1:5005:5005"
+      - "127.0.0.1:5006:5006"
     mem_limit: 500000000
     profiles: ["zec"]

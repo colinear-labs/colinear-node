@@ -3,13 +3,16 @@
 package btc
 
 import (
+	"fmt"
 	"math/big"
+
+	"github.com/pebbe/zmq4"
 )
 
 type Tx struct {
-	txid   []byte
-	to     []byte
-	from   []byte
+	txid   string
+	to     string
+	from   string
 	amount *big.Int
 }
 
@@ -40,4 +43,18 @@ func (chain *BtcChain) NewBlock(block BtcBlock) {
 		chain.blocks10 = chain.blocks10[1 : len(chain.blocks10)-1]
 	}
 	chain.blocks10 = append(chain.blocks10, block)
+}
+func (chain *BtcChain) Listen(port uint) {
+	socket, err := zmq4.NewSocket(zmq4.SUB)
+	if err != nil {
+		panic(err)
+	}
+	defer socket.Close()
+	// if we need filtering, check out http://api.zeromq.org/4-1:zmq-setsockopt#toc41
+
+	socket.Bind(fmt.Sprintf("tcp://127.0.0.1:%s", (string)(port)))
+	for {
+		msg, _ := socket.Recv(0)
+		fmt.Printf("Received %s\n", msg)
+	}
 }
