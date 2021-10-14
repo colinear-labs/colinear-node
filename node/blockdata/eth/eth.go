@@ -41,7 +41,9 @@ func (chain *EthChain) setBlocks(blocks []EthBlock) {
 
 // Cycles old old block `[0]` out and appends the latest block
 func (chain *EthChain) newBlock(block EthBlock) {
-	chain.blocks10 = chain.blocks10[1 : len(chain.blocks10)-1]
+	if len(chain.blocks10) == 10 {
+		chain.blocks10 = chain.blocks10[1 : len(chain.blocks10)-1]
+	}
 	chain.blocks10 = append(chain.blocks10, block)
 }
 

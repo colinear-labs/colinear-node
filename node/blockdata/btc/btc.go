@@ -3,9 +3,7 @@
 package btc
 
 import (
-	"fmt"
 	"math/big"
-	"net/http"
 )
 
 type Tx struct {
@@ -37,16 +35,9 @@ func (chain *BtcChain) SetBlocks(blocks []BtcBlock) {
 }
 
 // Cycles old old block `[0]` out and appends the latest block
-func (chain *BtcChain) NewBlock(port uint) {
+func (chain *BtcChain) NewBlock(block BtcBlock) {
 	if len(chain.blocks10) == 10 {
-		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%s/rest/chaininfo.json", port))
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(resp) // temp
-
-		block := BtcBlock{}
 		chain.blocks10 = chain.blocks10[1 : len(chain.blocks10)-1]
-		chain.blocks10 = append(chain.blocks10, block)
 	}
+	chain.blocks10 = append(chain.blocks10, block)
 }
