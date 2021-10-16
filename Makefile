@@ -1,5 +1,5 @@
 SHELL = /bin/sh
-.DEFAULT_GOAL := build
+.DEFAULT_GOAL := release
 
 build:
 	@mkdir -p node/bin
@@ -11,4 +11,8 @@ build:
 
 clean:
 	@rm -rf node/bin
+	@rm -rf release
 
+release: build 
+	@mkdir release
+	@cp -r cli docker-compose.yml extnodes node-prod release
