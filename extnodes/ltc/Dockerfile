@@ -1,5 +1,7 @@
 FROM exchangeunion/litecoind
 
+RUN apk add curl
+
 ENTRYPOINT litecoind \ 
     -disablewallet \
     -prune=550 \

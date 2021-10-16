@@ -1,5 +1,7 @@
 FROM kylemanna/bitcoind
 
+RUN apk add curl
+
 ENTRYPOINT bitcoind \ 
     -disablewallet \
     -prune=550 \

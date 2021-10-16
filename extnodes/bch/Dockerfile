@@ -1,5 +1,7 @@
 FROM bitcoinabc/bitcoin-abc:0.24.3
 
+RUN apk add curl
+
 ENTRYPOINT bitcoind \ 
     -disablewallet \
     -prune=550 \

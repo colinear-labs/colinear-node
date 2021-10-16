@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"time"
+	"xnode/blockdata"
 
 	"github.com/perlin-network/noise"
 	"github.com/perlin-network/noise/kademlia"
@@ -13,6 +14,9 @@ import (
 )
 
 func main() {
+
+	SelectedChains := []string{"ltc", "eth"}
+	blockdata.InitChains(SelectedChains)
 
 	logger, _ := zap.NewDevelopment(zap.AddStacktrace(zap.PanicLevel))
 	defer logger.Sync()

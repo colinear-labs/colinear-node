@@ -1,5 +1,7 @@
 FROM casperstack/dogecoin
 
+RUN apk add curl
+
 ENTRYPOINT dogecoind \
     -disablewallet \
     -prune=550 \
