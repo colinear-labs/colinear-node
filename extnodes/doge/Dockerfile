@@ -1,10 +1,10 @@
 FROM casperstack/dogecoin
 
-RUN apk add curl
+RUN apt-get update && apt-get install -y curl
 
 ENTRYPOINT dogecoind \
     -disablewallet \
-    -prune=550 \
+    -prune=2200 \
     -maxmempool=20 \
     -server \
     # auth --> user:pass

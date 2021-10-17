@@ -1,6 +1,6 @@
 FROM kylemanna/bitcoind
 
-RUN apk add curl
+RUN apt-get update && apt-get install -y curl
 
 ENTRYPOINT bitcoind \ 
     -disablewallet \

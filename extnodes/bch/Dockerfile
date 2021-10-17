@@ -1,6 +1,10 @@
 FROM bitcoinabc/bitcoin-abc:0.24.3
 
-RUN apk add curl
+USER root
+
+RUN apt-get update && apt-get install -y curl
+
+USER bitcoin
 
 ENTRYPOINT bitcoind \ 
     -disablewallet \

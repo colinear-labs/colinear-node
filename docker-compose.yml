@@ -15,6 +15,7 @@ services:
   btc:
     build:
       context: "./extnodes/btc"
+    network_mode: "host"
     ports:
       - "127.0.0.1:5000:5000"
       - "8333:8333" # Definitely subject to change once go chain implementation is done
@@ -33,6 +34,7 @@ services:
   bch:
     build: 
       context: "./extnodes/bch"
+    network_mode: "host"
     ports:
       - "8333:8333" 
       - "127.0.0.1:5002:5002"
@@ -42,6 +44,7 @@ services:
   ltc:
     build:
       context: "./extnodes/ltc"
+    network_mode: "host"
     ports:
       - "9333:9333"
       - "127.0.0.1:5003:5003"
@@ -51,6 +54,7 @@ services:
   doge:
     build: 
       context: "./extnodes/doge"
+    network_mode: "host"
     ports:
       - "22556:22556" 
       - "127.0.0.1:5004:5004"
