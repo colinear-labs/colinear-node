@@ -46,8 +46,9 @@ func (chain *BtcChain) ListenZmq() {
 func (chain *BtcChain) Listen() {
 
 	// Make JSON-RPC connection
-	client, err := jsonrpc.Dial("tcp", fmt.Sprintf("127.0.0.1:%s", (string)(chain.Chain.Port)))
+	client, err := jsonrpc.Dial("tcp", fmt.Sprintf("127.0.0.1:%s", fmt.Sprint(chain.Chain.Port)))
 	if err != nil {
+		fmt.Printf("Failed to dial full node on port %s.\n", fmt.Sprint(chain.Chain.Port))
 		panic(err)
 	}
 	defer client.Close()

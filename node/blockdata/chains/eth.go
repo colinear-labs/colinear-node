@@ -22,8 +22,9 @@ func NewEthChain(name string, port uint) *EthChain {
 
 // Listen for new blocks (over websocket to local node)
 func (chain *EthChain) Listen() {
-	client, err := ethclient.Dial(fmt.Sprintf("ws://127.0.0.1:%s/wsrpc", (string)(chain.Chain.Port)))
+	client, err := ethclient.Dial(fmt.Sprintf("ws://127.0.0.1:%s/wsrpc", fmt.Sprint(chain.Chain.Port)))
 	if err != nil {
+		fmt.Printf("Failed to dial full node on port %s.\n", fmt.Sprint(chain.Chain.Port))
 		panic(err)
 	}
 
