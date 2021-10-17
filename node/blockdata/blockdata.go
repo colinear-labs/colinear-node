@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"xnode/blockdata/chains"
+	"xnode/nodeutil"
 )
 
 var Btc *chains.BtcChain = nil
@@ -15,27 +16,45 @@ var Doge *chains.BtcChain = nil
 var Eth *chains.EthChain = nil
 
 func InitChains(selectedChains []string) {
+
+	selectedChains = nodeutil.Unique(selectedChains)
+	fmt.Println(selectedChains)
+
+	btcNotify := false
 	for _, chain := range selectedChains {
 		switch chain {
 		case "btc":
-			// Btc = chains.NewBtcChain("btc", 5000)
 			Btc = chains.NewBtcChain("btc", 5000)
+			go func() { Btc.Listen() }()
+			btcNotify = true
 		case "bch":
-			Btc = chains.NewBtcChain("bch", 5002)
+			Bch = chains.NewBtcChain("bch", 5002)
+			go func() { Bch.Listen() }()
+			btcNotify = true
 		case "ltc":
-			Btc = chains.NewBtcChain("ltc", 5003)
+			Ltc = chains.NewBtcChain("ltc", 5003)
+			go func() { Ltc.Listen() }()
+			btcNotify = true
 		case "doge":
-			Btc = chains.NewBtcChain("doge", 5003)
+			Doge = chains.NewBtcChain("doge", 5003)
+			go func() { Doge.Listen() }()
+			btcNotify = true
 		case "eth":
-			Eth = chains.NewEthChain("eth", 5002)
+			Eth = chains.NewEthChain("eth", 5001)
+			go func() { Eth.Listen() }()
+		default:
+			fmt.Printf("WARN: Unrecognized chain %s.\n", chain)
 		}
+	}
+	if btcNotify {
+		go func() { SpawnBtcBlockNotifyServer() }()
 	}
 }
 
 // Spawn a local HTTP server to listen for new block events from
 // BTC blockchains. Triggered by cURL requests from node containers,
 // & pushes new events to the NewBlockEvents channel
-func SpawnBtcBlockNotifyServer(port uint) {
+func SpawnBtcBlockNotifyServer() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
@@ -48,19 +67,24 @@ func SpawnBtcBlockNotifyServer(port uint) {
 		name := u["name"][0]
 		hash := u["hash"][0]
 
-		fmt.Printf("CHAIN NAME\t%s\nBLOCK HASH\t%s\n\n", name, hash)
+		var ch *chains.BtcChain = nil
 
-		bmatch := make(map[string]*chains.BtcChain)
-		bmatch["btc"] = Btc
-		bmatch["bch"] = Bch
-		bmatch["ltc"] = Ltc
-		bmatch["doge"] = Doge
+		switch name {
+		case "btc":
+			ch = Btc
+		case "bch":
+			ch = Bch
+		case "ltc":
+			ch = Ltc
+		case "doge":
+			ch = Doge
+		}
 
 		go func() {
-			bmatch[name].NewBlockEvents <- hash
+			ch.NewBlockEvents <- hash
 		}()
 
 	})
 
-	http.ListenAndServe(":4999", nil)
+	http.ListenAndServe("127.0.0.1:4999", nil)
 }
