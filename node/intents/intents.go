@@ -21,6 +21,23 @@ type PaymentIntent struct {
 	To         string
 }
 
+func FindPendingPayment(intent PaymentIntent) bool {
+	switch intent.Type {
+	case Coin:
+		if blockdata.ChainDict[intent.CurrencyId] != nil {
+			for _, tx := range blockdata.ChainDict[intent.CurrencyId].PendingTxs {
+				compareAmounts := tx.Amount.Cmp(intent.Amount)
+				if tx.To == intent.To && (compareAmounts == 1 || compareAmounts == 0) {
+					return true
+				}
+			}
+		} else {
+			fmt.Printf("%s doesn't match any blockchains.", intent.CurrencyId)
+		}
+	}
+	return false
+}
+
 func FindVerifiedPayment(intent PaymentIntent) bool {
 	switch intent.Type {
 	case Coin:
