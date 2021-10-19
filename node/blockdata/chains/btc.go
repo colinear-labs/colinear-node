@@ -94,37 +94,40 @@ func (chain *BtcChain) ListenZmq() {
 // Auth login should simply be user:pass
 func (chain *BtcChain) Listen() {
 
-	result := response{}
+	for {
 
-	testHash := "663c32cf88cc07e1e5e07dc9a63cb4d2bd10da141107eeda6ed9fa326c103679"
+		result := response{}
 
-	opts := getBlockArgs{Blockhash: testHash, Verbosity: 2}
-	payload := jsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getblock", Params: opts}
-	resp, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payload))
+		blockHash := <-chain.NewBlockEvents
 
-	if err != nil {
-		panic(err)
-	}
+		opts := getBlockArgs{Blockhash: blockHash, Verbosity: 2}
+		payload := jsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getblock", Params: opts}
+		resp, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payload))
 
-	resp.ToJSON(&result)
-
-	fmt.Println(result.Result.Version)
-
-	newBlock := Block{}
-	for _, tx := range result.Result.Tx {
-
-		addresses := tx.Vout[0].ScriptPubKey.Addresses
-		addr := ""
-		if len(addresses) != 0 {
-			addr = addresses[0]
+		if err != nil {
+			panic(err)
 		}
 
-		newTx := Tx{
-			Txid:   tx.Txid,
-			Amount: big.NewFloat((float64)(tx.Vout[0].Value)),
-			To:     addr,
+		resp.ToJSON(&result)
+
+		fmt.Println(result.Result.Version)
+
+		newBlock := Block{}
+		for _, tx := range result.Result.Tx {
+
+			addresses := tx.Vout[0].ScriptPubKey.Addresses
+			addr := ""
+			if len(addresses) != 0 {
+				addr = addresses[0]
+			}
+
+			newTx := Tx{
+				Txid:   tx.Txid,
+				Amount: big.NewFloat((float64)(tx.Vout[0].Value)),
+				To:     addr,
+			}
+			newBlock.Txs = append(newBlock.Txs, newTx)
 		}
-		newBlock.Txs = append(newBlock.Txs, newTx)
 	}
 
 }
