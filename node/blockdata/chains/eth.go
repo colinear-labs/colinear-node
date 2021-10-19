@@ -5,6 +5,7 @@ package chains
 import (
 	"context"
 	"fmt"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -49,10 +50,13 @@ func (chain *EthChain) Listen() {
 			txs := []Tx{}
 
 			for _, transaction := range block.Transactions() {
+				amt := new(big.Float).SetInt(transaction.Value())
+				amt = amt.Mul(amt, big.NewFloat(1e-18))
+
 				tx := Tx{
 					Txid:   transaction.Hash().String(),
 					To:     transaction.To().String(),
-					Amount: transaction.Value(),
+					Amount: amt,
 				}
 				txs = append(txs, tx)
 			}

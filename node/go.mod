@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/ethereum/go-ethereum v1.10.9
+	github.com/imroc/req v0.3.0
 	github.com/pebbe/zmq4 v1.2.7
 	github.com/perlin-network/noise v1.1.3
 	go.uber.org/zap v1.19.1

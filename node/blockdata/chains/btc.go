@@ -4,15 +4,64 @@ package chains
 
 import (
 	"fmt"
-	"net/rpc/jsonrpc"
+	"math/big"
 
+	"github.com/imroc/req"
 	"github.com/pebbe/zmq4"
 )
 
+// Base BTC chain type
 type BtcChain struct {
 	NewBlockEvents chan string
 	Chain          BaseChain
 }
+
+// Data schema for working with JSON-RPC
+type jsonRequest struct {
+	Jsonrpc string       `json:"jsonrpc"`
+	Id      string       `json:"id"`
+	Method  string       `json:"method"`
+	Params  getBlockArgs `json:"params"`
+}
+
+type getBlockArgs struct {
+	Blockhash string `json:"blockhash"`
+	Verbosity int    `json:"verbosity"`
+}
+
+type response struct {
+	Result result `json:"result"`
+}
+
+type result struct {
+	Version           int     `json:"version"`
+	Height            int     `json:"height"`
+	Confirmations     int     `json:"confirmations"`
+	Merkleroot        string  `json:"merkleroot"`
+	Tx                []tx    `json:"tx"`
+	Time              int     `json:"time"`
+	Nonce             int     `json:"nonce"`
+	Difficulty        float32 `json:"difficulty"`
+	Previousblockhash string  `json:"previousblockhash"`
+}
+
+type tx struct {
+	Txid string `json:"txid"`
+	Hash string `json:"hash"`
+	Vout []vout `json:"vout"`
+}
+
+type vout struct {
+	Value        float32      `json:"value"`
+	ScriptPubKey scriptPubKey `json:"scriptPubKey"`
+}
+
+type scriptPubKey struct {
+	Hex       string   `json:"hex"`
+	Addresses []string `json:"addresses"`
+}
+
+// Helpers
 
 func NewBtcChain(name string, port uint) *BtcChain {
 	c := BtcChain{NewBlockEvents: make(chan string), Chain: *NewChain(name, port)}
@@ -45,28 +94,30 @@ func (chain *BtcChain) ListenZmq() {
 // Auth login should simply be user:pass
 func (chain *BtcChain) Listen() {
 
-	// Make JSON-RPC connection
-	client, err := jsonrpc.Dial("tcp", fmt.Sprintf("127.0.0.1:%s", fmt.Sprint(chain.Chain.Port)))
+	result := response{}
+
+	testHash := "663c32cf88cc07e1e5e07dc9a63cb4d2bd10da141107eeda6ed9fa326c103679"
+
+	opts := getBlockArgs{Blockhash: testHash, Verbosity: 2}
+	payload := jsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getblock", Params: opts}
+	resp, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payload))
+
 	if err != nil {
-		fmt.Printf("Failed to dial full node on port %s.\n", fmt.Sprint(chain.Chain.Port))
 		panic(err)
 	}
-	defer client.Close()
 
-	// testhash := "00000000000000000009493672ee4919250e6837cd65c09157d8858043af5531"
+	resp.ToJSON(&result)
 
-	for {
+	fmt.Println(result.Result.Version)
 
-		header := <-chain.NewBlockEvents
-
-		reply := []byte{}
-
-		err := client.Call("getblock", header, &reply)
-		if err != nil {
-			panic(err)
-		} else {
-			fmt.Println(reply)
+	newBlock := Block{}
+	for _, tx := range result.Result.Tx {
+		newTx := Tx{
+			Txid:   tx.Txid,
+			Amount: big.NewFloat((float64)(tx.Vout[0].Value)),
+			To:     tx.Vout[0].ScriptPubKey.Addresses[0],
 		}
+		newBlock.Txs = append(newBlock.Txs, newTx)
 	}
 
 }
