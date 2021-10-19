@@ -14,5 +14,5 @@ clean:
 	@rm -rf release
 
 release: build 
-	@mkdir release
+	@mkdir -p release
 	@cp -r cli docker-compose.yml extnodes node-prod release
