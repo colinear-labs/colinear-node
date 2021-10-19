@@ -112,10 +112,17 @@ func (chain *BtcChain) Listen() {
 
 	newBlock := Block{}
 	for _, tx := range result.Result.Tx {
+
+		addresses := tx.Vout[0].ScriptPubKey.Addresses
+		addr := ""
+		if len(addresses) != 0 {
+			addr = addresses[0]
+		}
+
 		newTx := Tx{
 			Txid:   tx.Txid,
 			Amount: big.NewFloat((float64)(tx.Vout[0].Value)),
-			To:     tx.Vout[0].ScriptPubKey.Addresses[0],
+			To:     addr,
 		}
 		newBlock.Txs = append(newBlock.Txs, newTx)
 	}
