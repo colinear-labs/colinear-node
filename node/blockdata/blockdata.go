@@ -15,6 +15,8 @@ var Ltc *chains.BtcChain = nil
 var Doge *chains.BtcChain = nil
 var Eth *chains.EthChain = nil
 
+var ChainDict map[string]*chains.BaseChain
+
 func InitChains(selectedChains []string) {
 
 	selectedChains = nodeutil.Unique(selectedChains)
@@ -25,22 +27,27 @@ func InitChains(selectedChains []string) {
 		switch chain {
 		case "btc":
 			Btc = chains.NewBtcChain("btc", 5000)
+			ChainDict["btc"] = &Btc.Chain
 			go func() { Btc.Listen() }()
-			btcNotify = true
+			btcNotify = true // Only for BTC-based chains
 		case "bch":
 			Bch = chains.NewBtcChain("bch", 5002)
+			ChainDict["bch"] = &Bch.Chain
 			go func() { Bch.Listen() }()
 			btcNotify = true
 		case "ltc":
 			Ltc = chains.NewBtcChain("ltc", 5003)
+			ChainDict["ltc"] = &Ltc.Chain
 			go func() { Ltc.Listen() }()
 			btcNotify = true
 		case "doge":
 			Doge = chains.NewBtcChain("doge", 5003)
+			ChainDict["doge"] = &Doge.Chain
 			go func() { Doge.Listen() }()
 			btcNotify = true
 		case "eth":
 			Eth = chains.NewEthChain("eth", 5001)
+			ChainDict["eth"] = &Eth.Chain
 			go func() { Eth.Listen() }()
 		default:
 			fmt.Printf("WARN: Unrecognized chain %s.\n", chain)
