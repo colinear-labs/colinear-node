@@ -3,6 +3,7 @@ package intents
 import (
 	"fmt"
 	"math/big"
+	"time"
 	"xnode/blockdata"
 )
 
@@ -14,14 +15,61 @@ const (
 	Erc20
 )
 
+type PaymentStatus int
+
+const (
+	Incomplete = iota
+	Pending
+	Verified
+)
+
 type PaymentIntent struct {
 	Type       CurrencyType
 	CurrencyId string
 	Amount     *big.Float
 	To         string
+	Status     PaymentStatus
 }
 
-func FindPendingPayment(intent PaymentIntent) bool {
+func (intent PaymentIntent) WaitForPayment() {
+
+	timeinterval := 5 // seconds
+	res := make(chan string, 1)
+
+	go func() {
+		found := false
+		for {
+			// scan for pending / verified payments here
+			if intent.Status == Pending {
+				found = findVerifiedPayment(intent)
+				if found {
+					intent.Status = Verified
+					res <- "Found"
+					return
+				}
+			} else if intent.Status == Incomplete {
+				found = findPendingPayment(intent)
+				if found {
+					intent.Status = Pending
+				}
+			}
+			time.After(time.Duration(timeinterval) * time.Second)
+		}
+	}()
+
+	// get chain timeout
+	timeout := 100
+
+	// wait for result or timeout
+	select {
+	case <-res:
+		return
+	case <-time.After(time.Duration(timeout) * time.Second):
+		return
+	}
+}
+
+func findPendingPayment(intent PaymentIntent) bool {
 	switch intent.Type {
 	case Coin:
 		if blockdata.ChainDict[intent.CurrencyId] != nil {
@@ -38,7 +86,7 @@ func FindPendingPayment(intent PaymentIntent) bool {
 	return false
 }
 
-func FindVerifiedPayment(intent PaymentIntent) bool {
+func findVerifiedPayment(intent PaymentIntent) bool {
 	switch intent.Type {
 	case Coin:
 		if blockdata.ChainDict[intent.CurrencyId] != nil {

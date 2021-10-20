@@ -14,10 +14,11 @@ type Block struct {
 }
 
 type BaseChain struct {
-	Name       string
-	Port       uint
-	Blocks10   []Block
-	PendingTxs []Tx
+	Name           string
+	Port           uint
+	PaymentTimeout uint // in seconds
+	Blocks10       []Block
+	PendingTxs     []Tx
 }
 
 func NewChain(name string, port uint) *BaseChain {
