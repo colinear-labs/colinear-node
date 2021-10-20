@@ -69,14 +69,23 @@ func (intent PaymentIntent) WaitForPayment() {
 	}
 }
 
+// Check if total in mempool amounts to price
+//
+// NOTE: We COULD total across both mempool and
+// recent blocks. idk if good idea tho cuz extra
+// work for computer :(
 func findPendingPayment(intent PaymentIntent) bool {
 	switch intent.Type {
 	case Coin:
 		if blockdata.ChainDict[intent.CurrencyId] != nil {
+			total := big.NewFloat(0.0)
 			for _, tx := range blockdata.ChainDict[intent.CurrencyId].PendingTxs {
-				compareAmounts := tx.Amount.Cmp(intent.Amount)
-				if tx.To == intent.To && (compareAmounts == 1 || compareAmounts == 0) {
-					return true
+				if tx.To == intent.To {
+					total.Add(total, tx.Amount)
+					compareAmounts := total.Cmp(intent.Amount)
+					if compareAmounts == 1 || compareAmounts == 0 {
+						return true
+					}
 				}
 			}
 		} else {
@@ -86,15 +95,20 @@ func findPendingPayment(intent PaymentIntent) bool {
 	return false
 }
 
+// Check if total in last 10 blocks amounts to price
 func findVerifiedPayment(intent PaymentIntent) bool {
 	switch intent.Type {
 	case Coin:
 		if blockdata.ChainDict[intent.CurrencyId] != nil {
+			total := big.NewFloat(0.0)
 			for _, block := range blockdata.ChainDict[intent.CurrencyId].Blocks10 {
 				for _, tx := range block.Txs {
-					compareAmounts := tx.Amount.Cmp(intent.Amount)
-					if tx.To == intent.To && (compareAmounts == 1 || compareAmounts == 0) {
-						return true
+					if tx.To == intent.To {
+						total.Add(total, tx.Amount)
+						compareAmounts := total.Cmp(intent.Amount)
+						if compareAmounts == 1 || compareAmounts == 0 {
+							return true
+						}
 					}
 				}
 			}
