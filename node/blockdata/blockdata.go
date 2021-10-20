@@ -1,3 +1,4 @@
+// CONTAINS ALL SUPPORTED PUBLIC CHAINS
 package blockdata
 
 import (

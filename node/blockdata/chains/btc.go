@@ -16,8 +16,58 @@ type BtcChain struct {
 	Chain          BaseChain
 }
 
-// Data schema for working with JSON-RPC
-type jsonRequest struct {
+type BtcHeader struct {
+	Hash              string
+	Version           int
+	Merkleroot        string
+	Time              int
+	Nonce             int
+	Bits              string
+	Difficulty        float32
+	Previousblockhash string
+}
+
+// Get block headers via JSON-RPC
+
+type getBlockHeaderJsonRequest struct {
+	Jsonrpc string             `json:"jsonrpc"`
+	Id      string             `json:"id"`
+	Method  string             `json:"method"`
+	Params  getBlockHeaderArgs `json:"params"`
+}
+
+type getBlockHeaderArgs struct {
+	Hash    string `json:"hash"`
+	Verbose bool   `json:"verbose"`
+}
+
+type getBlockHeaderResponse struct {
+	Result getBlockHeaderResult `json:"result"`
+	Error  interface{}          `json:"error"`
+	Id     interface{}          `json:"id"`
+}
+
+type getBlockHeaderResult struct {
+	Hash              string  `json:"hash"`
+	Confirmations     int     `json:"confirmations"`
+	Height            int     `json:"height"`
+	Version           int     `json:"version"`
+	VersionHex        string  `json:"versionHex"`
+	Merkleroot        string  `json:"merkleRoot"`
+	Time              int     `json:"time"`
+	MedianTime        int     `json:"medianTime"`
+	Nonce             int     `json:"nonce"`
+	Bits              string  `json:"bits"`
+	Difficulty        float32 `json:"difficulty"`
+	Chainwork         string  `json:"chainwork"`
+	Ntx               int     `json:"nTx"`
+	Previousblockhash string  `json:"previousblockhash"`
+	Nextblockhash     string  `json:"nextblock"`
+}
+
+// Get full blocks JSON-RPC
+
+type getBlockJsonRequest struct {
 	Jsonrpc string       `json:"jsonrpc"`
 	Id      string       `json:"id"`
 	Method  string       `json:"method"`
@@ -29,11 +79,11 @@ type getBlockArgs struct {
 	Verbosity int    `json:"verbosity"`
 }
 
-type response struct {
-	Result result `json:"result"`
+type getBlockResponse struct {
+	Result getBlockResult `json:"result"`
 }
 
-type result struct {
+type getBlockResult struct {
 	Version           int     `json:"version"`
 	Height            int     `json:"height"`
 	Confirmations     int     `json:"confirmations"`
@@ -68,9 +118,10 @@ func NewBtcChain(name string, port uint) *BtcChain {
 	return &c
 }
 
-// (ZMQ) Listen on given port for incoming blocks
+// [NOT FULLY IMPLEMENTED] (ZMQ) Listen on given port
+// for incoming blocks
 //
-// Cleaner than local JSON-RPC, but
+// Cleaner than blocknotify + local JSON-RPC, but
 // the bitcoin forks leave us no choice :c
 func (chain *BtcChain) ListenZmq() {
 	socket, err := zmq4.NewSocket(zmq4.SUB)
@@ -96,24 +147,33 @@ func (chain *BtcChain) Listen() {
 
 	for {
 
-		result := response{}
-
 		blockHash := <-chain.NewBlockEvents
 
-		opts := getBlockArgs{Blockhash: blockHash, Verbosity: 2}
-		payload := jsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getblock", Params: opts}
-		resp, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payload))
+		resultGb := getBlockResponse{}
+
+		optsGb := getBlockArgs{Blockhash: blockHash, Verbosity: 2}
+		payloadGb := getBlockJsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getblock", Params: optsGb}
+		respGb, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGb))
 
 		if err != nil {
 			panic(err)
 		}
 
-		resp.ToJSON(&result)
+		respGb.ToJSON(&resultGb)
 
-		fmt.Println(result.Result.Version)
+		resultGbh := getBlockHeaderResponse{}
+		optsGbh := getBlockHeaderArgs{Hash: blockHash, Verbose: true}
+		payloadGbh := getBlockHeaderJsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getblockheader", Params: optsGbh}
+		respGbh, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGbh))
+
+		if err != nil {
+			panic(err)
+		}
+
+		respGbh.ToJSON(&resultGbh)
 
 		newBlock := Block{}
-		for _, tx := range result.Result.Tx {
+		for _, tx := range resultGb.Result.Tx {
 
 			addresses := tx.Vout[0].ScriptPubKey.Addresses
 			addr := ""
@@ -128,6 +188,21 @@ func (chain *BtcChain) Listen() {
 			}
 			newBlock.Txs = append(newBlock.Txs, newTx)
 		}
+
+		rgbh := resultGbh.Result
+		newHeader := BtcHeader{
+			Hash:              rgbh.Hash,
+			Version:           rgbh.Version,
+			Merkleroot:        rgbh.Merkleroot,
+			Time:              rgbh.Time,
+			Nonce:             rgbh.Time,
+			Bits:              rgbh.Bits,
+			Difficulty:        rgbh.Difficulty,
+			Previousblockhash: rgbh.Previousblockhash,
+		}
+
+		chain.Chain.NewBlock(newBlock)
+		chain.Chain.NewHeader(newHeader)
 	}
 
 }

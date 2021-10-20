@@ -19,6 +19,7 @@ type BaseChain struct {
 	PaymentTimeout uint // in seconds
 	Blocks10       []Block
 	PendingTxs     []Tx
+	Headers10      []interface{}
 }
 
 func NewChain(name string, port uint) *BaseChain {
@@ -40,8 +41,25 @@ func (chain *BaseChain) SetBlocks(blocks []Block) {
 
 // Cycles old old block `[0]` out and appends the latest block
 func (chain *BaseChain) NewBlock(block Block) {
-	chain.Blocks10 = chain.Blocks10[1 : len(chain.Blocks10)-1]
+	if len(chain.Blocks10) == 10 {
+		chain.Blocks10 = chain.Blocks10[1 : len(chain.Blocks10)-1]
+	}
 	chain.Blocks10 = append(chain.Blocks10, block)
+}
+
+// Set all headers at once
+func (chain *BaseChain) SetHeaders(headers []interface{}) {
+	if len(headers) == 10 {
+		chain.Headers10 = headers
+	}
+}
+
+// Cycles old old block `[0]` out and appends the latest block
+func (chain *BaseChain) NewHeader(header interface{}) {
+	if len(chain.Headers10) == 10 {
+		chain.Headers10 = chain.Headers10[1 : len(chain.Headers10)-1]
+	}
+	chain.Headers10 = append(chain.Headers10, header)
 }
 
 func (chain *BaseChain) Listen() {
