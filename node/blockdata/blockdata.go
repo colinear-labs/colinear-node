@@ -7,16 +7,37 @@ import (
 	"net/http"
 	"net/url"
 	"xnode/blockdata/chains"
+	"xnode/blockdata/tokens"
 	"xnode/nodeutil"
 )
+
+type Currency struct {
+	Id       string
+	Currency interface{}
+}
+
+// Bitcoin & forks
 
 var Btc *chains.BtcChain = nil
 var Bch *chains.BtcChain = nil
 var Ltc *chains.BtcChain = nil
 var Doge *chains.BtcChain = nil
+
+// Ethereum chain(s)
+
 var Eth *chains.EthChain = nil
 
+// ERC20s
+//
+// NOTE: Start with stablecoins for now
+
+var Dai *tokens.ERC20 = nil
+var Usdt *tokens.ERC20 = nil
+var Usdc *tokens.ERC20 = nil
+var Ust *tokens.ERC20 = nil
+
 var ChainDict map[string]*chains.BaseChain
+var ERC20Dict map[string]*tokens.ERC20
 
 func InitChains(selectedChains []string) {
 
@@ -49,6 +70,7 @@ func InitChains(selectedChains []string) {
 		case "eth":
 			Eth = chains.NewEthChain("eth", 5001)
 			ChainDict["eth"] = &Eth.Chain
+			InitERC20Eth()
 			go func() { Eth.Listen() }()
 		default:
 			fmt.Printf("WARN: Unrecognized chain %s.\n", chain)
@@ -95,4 +117,17 @@ func SpawnBtcBlockNotifyServer() {
 	})
 
 	http.ListenAndServe("127.0.0.1:4999", nil)
+}
+
+// Initialize all ERC20 tokens on Ethereum chain.
+// Only run when Ethereum is selected by the user.
+func InitERC20Eth() {
+	Dai = tokens.NewERC20Eth("dai", "0x6B175474E89094C44Da98b954EedeAC495271d0F")
+	ERC20Dict["dai"] = Dai
+	Usdt = tokens.NewERC20Eth("usdt", "0xB8c77482e45F1F44dE1745F52C74426C631bDD52")
+	ERC20Dict["usdt"] = Usdt
+	Usdc = tokens.NewERC20Eth("usdc", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
+	ERC20Dict["usdc"] = Usdc
+	Ust = tokens.NewERC20Eth("ust", "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD")
+	ERC20Dict["ust"] = Ust
 }
