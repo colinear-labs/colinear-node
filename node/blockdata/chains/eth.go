@@ -1,4 +1,5 @@
 // For all ETH-like chains
+// NOTE: scans for erc20 transactions as well
 
 package chains
 
@@ -13,6 +14,15 @@ import (
 
 type EthChain struct {
 	Chain BaseChain
+}
+
+// Ethereum header struct. SUBJECT TO CHANGE
+type EthHeader struct {
+	HashPrevBlock  [32]byte
+	HashMerkleRoot [32]byte
+	Time           uint32
+	Bits           uint32
+	Nonce          uint32
 }
 
 // Instantiate new ETH chain.
@@ -47,6 +57,14 @@ func (chain *EthChain) Listen() {
 				panic(err)
 			}
 
+			newHeader := EthHeader{
+				HashPrevBlock:  header.ParentHash,
+				HashMerkleRoot: header.Hash(),
+				Time:           uint32(header.Time),
+				Bits:           uint32(header.Difficulty.Uint64()),
+				Nonce:          uint32(header.Nonce.Uint64()),
+			}
+
 			txs := []Tx{}
 
 			for _, transaction := range block.Transactions() {
@@ -61,6 +79,7 @@ func (chain *EthChain) Listen() {
 				txs = append(txs, tx)
 			}
 
+			chain.Chain.NewHeader(newHeader)
 			chain.Chain.NewBlock(Block{Txs: txs})
 		}
 	}

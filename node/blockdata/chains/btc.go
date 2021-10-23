@@ -5,7 +5,6 @@ package chains
 import (
 	"fmt"
 	"math/big"
-	"strconv"
 	"xnode/nodeutil"
 
 	"github.com/imroc/req"
@@ -18,6 +17,7 @@ type BtcChain struct {
 	Chain          BaseChain
 }
 
+// BTC header struct. SUBJECT TO CHANGE
 type BtcHeader struct {
 	Version    uint32
 	PrevBlock  [32]byte
@@ -195,7 +195,7 @@ func (chain *BtcChain) Listen() {
 			PrevBlock:  nodeutil.StringToByte32(rgbh.Previousblockhash),
 			MerkleRoot: nodeutil.StringToByte32(rgbh.Merkleroot),
 			Timestamp:  (uint32)(rgbh.Time),
-			Bits:       hexToUint32(rgbh.Bits),
+			Bits:       nodeutil.HexStringToUint32(rgbh.Bits),
 			Nonce:      (uint32)(rgbh.Nonce),
 		}
 
@@ -203,10 +203,4 @@ func (chain *BtcChain) Listen() {
 		chain.Chain.NewHeader(newHeader)
 	}
 
-}
-
-// function that converts hex string to uint32
-func hexToUint32(hex string) uint32 {
-	i, _ := strconv.ParseUint(hex, 16, 32)
-	return uint32(i)
 }
