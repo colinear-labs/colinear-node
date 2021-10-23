@@ -5,6 +5,8 @@ package chains
 import (
 	"fmt"
 	"math/big"
+	"strconv"
+	"xnode/nodeutil"
 
 	"github.com/imroc/req"
 	"github.com/pebbe/zmq4"
@@ -17,14 +19,12 @@ type BtcChain struct {
 }
 
 type BtcHeader struct {
-	Hash              string
-	Version           int
-	Merkleroot        string
-	Time              int
-	Nonce             int
-	Bits              string
-	Difficulty        float32
-	Previousblockhash string
+	Version    uint32
+	PrevBlock  [32]byte
+	MerkleRoot [32]byte
+	Timestamp  uint32
+	Bits       uint32
+	Nonce      uint32
 }
 
 // Get block headers via JSON-RPC
@@ -191,18 +191,22 @@ func (chain *BtcChain) Listen() {
 
 		rgbh := resultGbh.Result
 		newHeader := BtcHeader{
-			Hash:              rgbh.Hash,
-			Version:           rgbh.Version,
-			Merkleroot:        rgbh.Merkleroot,
-			Time:              rgbh.Time,
-			Nonce:             rgbh.Time,
-			Bits:              rgbh.Bits,
-			Difficulty:        rgbh.Difficulty,
-			Previousblockhash: rgbh.Previousblockhash,
+			Version:    (uint32)(rgbh.Version),
+			PrevBlock:  nodeutil.StringToByte32(rgbh.Previousblockhash),
+			MerkleRoot: nodeutil.StringToByte32(rgbh.Merkleroot),
+			Timestamp:  (uint32)(rgbh.Time),
+			Bits:       hexToUint32(rgbh.Bits),
+			Nonce:      (uint32)(rgbh.Nonce),
 		}
 
 		chain.Chain.NewBlock(newBlock)
 		chain.Chain.NewHeader(newHeader)
 	}
 
+}
+
+// function that converts hex string to uint32
+func hexToUint32(hex string) uint32 {
+	i, _ := strconv.ParseUint(hex, 16, 32)
+	return uint32(i)
 }
