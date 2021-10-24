@@ -24,7 +24,6 @@ const (
 )
 
 type PaymentIntent struct {
-	Type       CurrencyType
 	CurrencyId string
 	Amount     *big.Float
 	To         string
@@ -75,7 +74,8 @@ func (intent PaymentIntent) WaitForPayment() {
 // recent blocks. idk if good idea tho cuz extra
 // work for computer :(
 func findPendingPayment(intent PaymentIntent) bool {
-	switch intent.Type {
+	ctype := determineIntentType(intent)
+	switch ctype {
 	case Coin:
 		if blockdata.ChainDict[intent.CurrencyId] != nil {
 			total := big.NewFloat(0.0)
@@ -89,7 +89,7 @@ func findPendingPayment(intent PaymentIntent) bool {
 				}
 			}
 		} else {
-			fmt.Printf("%s doesn't match any blockchains.", intent.CurrencyId)
+			fmt.Printf("%s doesn't match any running currencies.", intent.CurrencyId)
 		}
 	}
 	return false
@@ -97,7 +97,8 @@ func findPendingPayment(intent PaymentIntent) bool {
 
 // Check if total in last 10 blocks amounts to price
 func findVerifiedPayment(intent PaymentIntent) bool {
-	switch intent.Type {
+	ctype := determineIntentType(intent)
+	switch ctype {
 	case Coin:
 		if blockdata.ChainDict[intent.CurrencyId] != nil {
 			total := big.NewFloat(0.0)
@@ -114,8 +115,18 @@ func findVerifiedPayment(intent PaymentIntent) bool {
 			}
 		} else {
 			// maybe switch this to whatever logging system noise uses
-			fmt.Printf("%s doesn't match any blockchains.", intent.CurrencyId)
+			fmt.Printf("%s doesn't match any running currencies.", intent.CurrencyId)
 		}
 	}
 	return false
+}
+
+func determineIntentType(intent PaymentIntent) CurrencyType {
+	var res CurrencyType
+	if blockdata.ChainDict[intent.CurrencyId] != nil {
+		res = Coin
+	} else if blockdata.ERC20Dict[intent.CurrencyId] != nil {
+		res = Erc20
+	}
+	return res
 }
