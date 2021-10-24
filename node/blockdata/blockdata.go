@@ -11,11 +11,6 @@ import (
 	"xnode/nodeutil"
 )
 
-type Currency struct {
-	Id       string
-	Currency interface{}
-}
-
 // Bitcoin & forks
 
 var Btc *chains.BtcChain = nil
