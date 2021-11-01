@@ -5,11 +5,13 @@ services:
   xnode-dev: 
     build:
       context: "./node"
+    network_mode: "host"
     profiles: ["xnode-dev"]
 
   xnode-prod: 
     build:
       context: "./node-prod"
+    network_mode: "host"
     profiles: ["xnode-prod"]
 
   btc:
