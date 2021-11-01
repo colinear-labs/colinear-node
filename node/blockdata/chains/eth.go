@@ -7,13 +7,16 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"xnode/blockdata/basechain"
+	"xnode/blockdata/tokens"
 
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 type EthChain struct {
-	Chain BaseChain
+	Chain  basechain.BaseChain
+	Client *ethclient.Client
 }
 
 // Ethereum header struct. SUBJECT TO CHANGE
@@ -27,21 +30,22 @@ type EthHeader struct {
 
 // Instantiate new ETH chain.
 func NewEthChain(name string, port uint) *EthChain {
-	c := EthChain{Chain: *NewChain(name, port)}
+	chain := *basechain.NewChain(name, port)
+	client, err := ethclient.Dial(fmt.Sprintf("ws://127.0.0.1:%s/wsrpc", fmt.Sprint(chain.Port)))
+	if err != nil {
+		fmt.Printf("Failed to dial full node on port %s.\n", fmt.Sprint(chain.Port))
+		panic(err)
+	}
+	c := EthChain{Chain: chain, Client: client}
 	return &c
 }
 
 // Listen for new blocks (over websocket to local node)
 func (chain *EthChain) Listen() {
-	client, err := ethclient.Dial(fmt.Sprintf("ws://127.0.0.1:%s/wsrpc", fmt.Sprint(chain.Chain.Port)))
-	if err != nil {
-		fmt.Printf("Failed to dial full node on port %s.\n", fmt.Sprint(chain.Chain.Port))
-		panic(err)
-	}
 
 	headers := make(chan *types.Header)
 
-	sub, err := client.SubscribeNewHead(context.Background(), headers)
+	sub, err := chain.Client.SubscribeNewHead(context.Background(), headers)
 
 	if err != nil {
 		panic(err)
@@ -52,7 +56,7 @@ func (chain *EthChain) Listen() {
 		case err := <-sub.Err():
 			panic(err)
 		case header := <-headers:
-			block, err := client.BlockByHash(context.Background(), header.Hash())
+			block, err := chain.Client.BlockByHash(context.Background(), header.Hash())
 			if err != nil {
 				panic(err)
 			}
@@ -65,13 +69,13 @@ func (chain *EthChain) Listen() {
 				Nonce:          uint32(header.Nonce.Uint64()),
 			}
 
-			txs := []Tx{}
+			txs := []basechain.Tx{}
 
 			for _, transaction := range block.Transactions() {
 				amt := new(big.Float).SetInt(transaction.Value())
 				amt = amt.Mul(amt, big.NewFloat(1e-18))
 
-				tx := Tx{
+				tx := basechain.Tx{
 					Txid:   transaction.Hash().String(),
 					To:     transaction.To().String(),
 					Amount: amt,
@@ -80,7 +84,8 @@ func (chain *EthChain) Listen() {
 			}
 
 			chain.Chain.NewHeader(newHeader)
-			chain.Chain.NewBlock(Block{Txs: txs})
+			chain.Chain.NewBlock(basechain.Block{Txs: txs})
+			tokens.NewEthBlockEvents <- uint(header.Number.Uint64())
 		}
 	}
 

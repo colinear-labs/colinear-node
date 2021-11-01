@@ -1,4 +1,4 @@
-package chains
+package basechain
 
 import "math/big"
 

@@ -33,6 +33,10 @@ Temporary Items
 *.swp
 .vscode/
 
+# Generated interface files
+node/blockdata/tokens/erc20abi/*.go
+node/blockdata/tokens/erc20abi/abi/
+
 # Binaries
 xnode
 */bin/

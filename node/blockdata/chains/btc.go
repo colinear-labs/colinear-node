@@ -5,6 +5,7 @@ package chains
 import (
 	"fmt"
 	"math/big"
+	"xnode/blockdata/basechain"
 	"xnode/nodeutil"
 
 	"github.com/imroc/req"
@@ -14,7 +15,7 @@ import (
 // Base BTC chain type
 type BtcChain struct {
 	NewBlockEvents chan string
-	Chain          BaseChain
+	Chain          basechain.BaseChain
 }
 
 // BTC header struct. SUBJECT TO CHANGE
@@ -114,7 +115,7 @@ type scriptPubKey struct {
 // Helpers
 
 func NewBtcChain(name string, port uint) *BtcChain {
-	c := BtcChain{NewBlockEvents: make(chan string), Chain: *NewChain(name, port)}
+	c := BtcChain{NewBlockEvents: make(chan string), Chain: *basechain.NewChain(name, port)}
 	return &c
 }
 
@@ -172,7 +173,7 @@ func (chain *BtcChain) Listen() {
 
 		respGbh.ToJSON(&resultGbh)
 
-		newBlock := Block{}
+		newBlock := basechain.Block{}
 		for _, tx := range resultGb.Result.Tx {
 
 			addresses := tx.Vout[0].ScriptPubKey.Addresses
@@ -181,7 +182,7 @@ func (chain *BtcChain) Listen() {
 				addr = addresses[0]
 			}
 
-			newTx := Tx{
+			newTx := basechain.Tx{
 				Txid:   tx.Txid,
 				Amount: big.NewFloat((float64)(tx.Vout[0].Value)),
 				To:     addr,

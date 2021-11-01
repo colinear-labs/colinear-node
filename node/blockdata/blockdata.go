@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"xnode/blockdata/basechain"
 	"xnode/blockdata/chains"
 	"xnode/blockdata/tokens"
 	"xnode/nodeutil"
@@ -31,8 +32,8 @@ var Usdt *tokens.ERC20 = nil
 var Usdc *tokens.ERC20 = nil
 var Ust *tokens.ERC20 = nil
 
-var ChainDict map[string]*chains.BaseChain
-var ERC20Dict map[string]*tokens.ERC20
+var ChainDict map[string]*basechain.BaseChain
+var ERC20EthDict map[string]*tokens.ERC20
 
 func InitChains(selectedChains []string) {
 
@@ -118,11 +119,11 @@ func SpawnBtcBlockNotifyServer() {
 // Only run when Ethereum is selected by the user.
 func InitERC20Eth() {
 	Dai = tokens.NewERC20Eth("dai", "0x6B175474E89094C44Da98b954EedeAC495271d0F")
-	ERC20Dict["dai"] = Dai
+	ERC20EthDict["dai"] = Dai
 	Usdt = tokens.NewERC20Eth("usdt", "0xB8c77482e45F1F44dE1745F52C74426C631bDD52")
-	ERC20Dict["usdt"] = Usdt
+	ERC20EthDict["usdt"] = Usdt
 	Usdc = tokens.NewERC20Eth("usdc", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
-	ERC20Dict["usdc"] = Usdc
+	ERC20EthDict["usdc"] = Usdc
 	Ust = tokens.NewERC20Eth("ust", "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD")
-	ERC20Dict["ust"] = Ust
+	ERC20EthDict["ust"] = Ust
 }

@@ -1,6 +1,11 @@
 SHELL = /bin/sh
 .DEFAULT_GOAL := release
 
+abigen:
+	cd node/blockdata/tokens/erc20abi && \
+	solc --abi erc20.sol -o abi --overwrite && \
+	abigen --abi=abi/ERC20.abi --pkg=erc20abi --type=ERC20 --out=erc20abi.go
+
 build:
 	@mkdir -p node/bin
 	cd node && \
@@ -13,6 +18,6 @@ clean:
 	@rm -rf node/bin
 	@rm -rf release
 
-release: build 
+release: abigen build 
 	@mkdir -p release
 	@cp -r cli docker-compose.yml extnodes node-prod release
