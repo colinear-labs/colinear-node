@@ -34,8 +34,8 @@ Temporary Items
 .vscode/
 
 # Generated interface files
-node/blockdata/tokens/erc20abi/*.go
-node/blockdata/tokens/erc20abi/abi/
+node/intents/erc20eth/erc20abi/*.go
+node/intents/erc20eth/erc20abi/abi/
 
 # Binaries
 xnode

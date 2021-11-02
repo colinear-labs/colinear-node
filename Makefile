@@ -2,7 +2,7 @@ SHELL = /bin/sh
 .DEFAULT_GOAL := release
 
 abigen:
-	cd node/blockdata/tokens/erc20abi && \
+	cd node/intents/erc20eth/erc20abi && \
 	solc --abi erc20.sol -o abi --overwrite && \
 	abigen --abi=abi/ERC20.abi --pkg=erc20abi --type=ERC20 --out=erc20abi.go
 
