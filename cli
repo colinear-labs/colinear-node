@@ -6,6 +6,8 @@ import subprocess
 parser = argparse.ArgumentParser(description="Host an X node.")
 
 parser.add_argument('-c', '--chains', help="Which blockchain nodes to run (e.g. btc eth doge)", type=str, nargs='+', dest='chains')
+parser.add_argument('-d', '--daemon', help="Daemonize runtime", action='store_true')
+parser.add_argument('-r', '--recreate', help="Fully recreate node containers before running", action='store_true')
 
 args = parser.parse_args()
 
@@ -40,4 +42,13 @@ else:
             profiles_args += ["--profile", c]
 
 print(f"Running on ports: {' '.join([str(nodes[node]) for node in profiles])}")
-subprocess.run(["docker", "compose", *profiles_args, "up"])
+
+command = ["docker", "compose", *profiles_args, "up"]
+if args.recreate:
+    command.append("--build")
+    command.append("--force-recreate")
+    command.append("--remove-orphans")
+if args.daemon:
+    command.append("--detach")
+
+subprocess.run(command)

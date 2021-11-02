@@ -20,4 +20,6 @@ clean:
 
 release: abigen build 
 	@mkdir -p release
-	@cp -r cli docker-compose.yml extnodes node-release.Dockerfile release
+	@cp -r cli docker-compose.yml extnodes release
+	@mkdir -p release/node
+	@cp node-release.Dockerfile release/node/Dockerfile

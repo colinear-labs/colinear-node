@@ -4,7 +4,7 @@ services:
 
   xnode-dev: 
     build:
-      context: "./node"
+      context: "./node"  # same dir, just in the dev folder structure
     network_mode: "host"
     profiles: ["xnode-dev"]
 
@@ -30,7 +30,7 @@ services:
     ports:
       - "30303:30303" 
       - "127.0.0.1:5001:5001"
-    mem_limit: 500000000
+    mem_limit: 1000000000
     profiles: ["eth"]
 
   bch:
