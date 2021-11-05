@@ -17,14 +17,19 @@ func InitProcessors(selectedCurrencies []string) {
 		case "btc", "ltc", "bch", "doge":
 			Processors[currency] = btc.NewBtcProcessor(currency, intents.NodePorts[currency])
 		case "eth":
-			Processors[currency] = eth.NewEthProcessor(currency, intents.NodePorts[currency])
+			ethProcessor := eth.NewEthProcessor(currency, intents.NodePorts[currency])
+			Processors[currency] = ethProcessor
 			for _, e := range []string{
 				"dai",
 				"usdt",
 				"usdc",
 				"ust",
 			} {
-				Processors["dai"] = erc20eth.NewERC20EthProcessor(e, intents.TokenAddresses[currency])
+				Processors[currency] = erc20eth.NewERC20EthProcessor(
+					e,
+					intents.TokenAddresses[currency],
+					ethProcessor.Client,
+				)
 			}
 		}
 	}

@@ -8,14 +8,15 @@ import (
 
 type ERC20EthProcessor struct {
 	Id              string
-	Client          *ethclient.Client
 	ContractAddress string
+	Client          *ethclient.Client
 }
 
-func NewERC20EthProcessor(id string, contractAddress string) *ERC20EthProcessor {
+func NewERC20EthProcessor(id string, contractAddress string, client *ethclient.Client) *ERC20EthProcessor {
 	return &ERC20EthProcessor{
 		Id:              id,
 		ContractAddress: contractAddress,
+		Client:          client,
 	}
 }
 
