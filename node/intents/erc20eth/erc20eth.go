@@ -14,11 +14,11 @@ type ERC20EthProcessor struct {
 	Id              string
 	ContractAddress string
 	Client          *ethclient.Client
-	Contract        *erc20abi.ERC20
+	Contract        *erc20abi.ERC20Caller
 }
 
 func NewERC20EthProcessor(id string, contractAddress string, client *ethclient.Client) *ERC20EthProcessor {
-	contract, err := erc20abi.NewERC20(common.HexToAddress(contractAddress), client)
+	contract, err := erc20abi.NewERC20Caller(common.HexToAddress(contractAddress), client)
 	if err != nil {
 		panic(err)
 	}
