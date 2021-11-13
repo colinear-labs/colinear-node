@@ -33,7 +33,9 @@ type getRawMempoolArgs struct {
 	MempoolSequence bool `json:"mempool_sequence"`
 }
 
-type getRawMempoolResponse []string
+type getRawMempoolResponse struct {
+	Result []string `json:"result"`
+}
 
 // Get ONE pending tx by txid
 
@@ -46,8 +48,8 @@ type getTxOutJsonRequest struct {
 
 type getTxOutArgs struct {
 	Txid           string `json:"txid"`
-	VoutNumber     string `json:"n"` // just put 1, apparently
-	IncludeMempool string `json:"include_mempool"`
+	VoutNumber     int    `json:"n"` // just put 1, apparently
+	IncludeMempool bool   `json:"include_mempool"`
 }
 
 type getTxOutResponse struct {
@@ -59,8 +61,47 @@ type getTxOutResponse struct {
 // Updates pending transactions every second
 func JsonRpcListenMempool(processor *BtcProcessor) {
 	for {
-		// do stuff here
+		resultGrm := getRawMempoolResponse{}
 
+		optsGrm := getRawMempoolArgs{Verbose: false, MempoolSequence: false}
+		payloadGrm := getRawMempoolJsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getrawmempool", Params: optsGrm}
+		respGrm, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGrm))
+		if err != nil {
+			panic(err)
+		}
+
+		respGrm.ToJSON(&resultGrm)
+
+		for _, txid := range resultGrm.Result {
+
+			resultGto := getTxOutResponse{}
+			optsGto := getTxOutArgs{Txid: txid, VoutNumber: 1, IncludeMempool: true}
+			payloadGrm := getTxOutJsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getrawmempool", Params: optsGto}
+			respGto, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGrm))
+			if err != nil {
+				panic(err)
+			}
+
+			respGto.ToJSON(&resultGto)
+
+			addresses := resultGto.ScriptPubKey.Addresses
+			addr := ""
+			if len(addresses) != 0 {
+				addr = addresses[0]
+			}
+
+			newTx := basechain.Tx{
+				Txid:   txid,
+				Amount: big.NewFloat((float64)(resultGto.Value)),
+				To:     addr,
+			}
+
+			processor.Chain.PendingTxs = append(processor.Chain.PendingTxs, newTx)
+
+		}
+
+		// Can arbitrarily change this to whatever.
+		// Consider making it a per-chain thing eventually?
 		time.Sleep(1 * time.Second)
 	}
 }
