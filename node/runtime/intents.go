@@ -5,13 +5,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"xnode/intents"
-	"xnode/intents/btc"
-	"xnode/intents/erc20eth"
-	"xnode/intents/eth"
+	"xnode/processing"
+	"xnode/processing/btc"
+	"xnode/processing/erc20eth"
+	"xnode/processing/eth"
 )
 
-var Processors = make(map[string]intents.Processor)
+var Processors = make(map[string]processing.Processor)
 
 // Initialize PaymentIntent processing + define processors in dict
 func InitProcessors(selectedCurrencies []string) {
@@ -20,7 +20,7 @@ func InitProcessors(selectedCurrencies []string) {
 		switch currency {
 		case "btc", "ltc", "bch", "doge":
 			// later, consider changing historyLen per-chain-- but leave it at 10 for now.
-			Processors[currency] = btc.NewBtcProcessor(currency, intents.NodePorts[currency], 10)
+			Processors[currency] = btc.NewBtcProcessor(currency, processing.NodePorts[currency], 10)
 			if !btcBlockNotifyServerRunning {
 				go func() {
 					SpawnBtcBlockNotifyServer()
@@ -28,7 +28,7 @@ func InitProcessors(selectedCurrencies []string) {
 				}()
 			}
 		case "eth":
-			ethProcessor := eth.NewEthProcessor(currency, intents.NodePorts[currency])
+			ethProcessor := eth.NewEthProcessor(currency, processing.NodePorts[currency])
 			Processors[currency] = ethProcessor
 			for _, e := range []string{
 				"dai",
@@ -39,7 +39,7 @@ func InitProcessors(selectedCurrencies []string) {
 			} {
 				Processors[currency] = erc20eth.NewERC20EthProcessor(
 					e,
-					intents.TokenAddresses[currency],
+					processing.TokenAddresses[currency],
 					ethProcessor.Client,
 				)
 			}

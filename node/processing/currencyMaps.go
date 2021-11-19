@@ -1,4 +1,4 @@
-package intents
+package processing
 
 var NodePorts = map[string]uint{
 	"btc":  5000,

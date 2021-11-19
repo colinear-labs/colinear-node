@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 	"time"
-	"xnode/intents"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -32,7 +31,7 @@ func (p *EthProcessor) CurrencyId() string {
 	return p.Id
 }
 
-func (p *EthProcessor) Process(intent *intents.PaymentIntent) chan intents.PaymentStatus {
+func (p *EthProcessor) Process(intent *intents.PaymentIntentNS) chan intents.PaymentStatus {
 	status := make(chan intents.PaymentStatus)
 
 	amtInt64, _ := intent.Amount.Int64()

@@ -4,7 +4,8 @@ package p2p
 
 import (
 	"fmt"
-	"xnode/intents"
+
+	"xnode/xutil"
 
 	"github.com/perlin-network/noise"
 )
@@ -17,7 +18,8 @@ func InitServer() *noise.Node {
 	}
 	defer node.Close()
 
-	node.RegisterMessage(noise.NewMessage(1, &intents.PaymentIntent{}))
+	node.RegisterMessage(xutil.PaymentIntent{}, xutil.UnmarshalPaymentIntent)
+	node.RegisterMessage(xutil.PaymentResponse{}, xutil.UnmarshalPaymentResponse)
 
 	node.Handle(func(ctx noise.HandlerContext) error {
 		if !ctx.IsRequest() {

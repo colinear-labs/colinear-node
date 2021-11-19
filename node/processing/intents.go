@@ -1,4 +1,4 @@
-package intents
+package processing
 
 import (
 	"math/big"
@@ -11,7 +11,8 @@ const (
 	Verified
 )
 
-type PaymentIntent struct {
+// Node-side payment intent representation.
+type PaymentIntentNS struct {
 	CurrencyId string
 	Amount     *big.Float
 	To         string
@@ -20,5 +21,5 @@ type PaymentIntent struct {
 
 type Processor interface {
 	CurrencyId() string
-	Process(*PaymentIntent) chan PaymentStatus
+	Process(*PaymentIntentNS) chan PaymentStatus
 }

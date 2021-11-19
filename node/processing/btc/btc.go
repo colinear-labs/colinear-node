@@ -5,8 +5,7 @@
 package btc
 
 import (
-	"xnode/intents"
-	"xnode/intents/basechain"
+	"xnode/processing/basechain"
 )
 
 type BtcProcessor struct {
@@ -39,7 +38,7 @@ func (p *BtcProcessor) CurrencyId() string {
 	return p.Id
 }
 
-func (p *BtcProcessor) Process(intent *intents.PaymentIntent) chan intents.PaymentStatus {
+func (p *BtcProcessor) Process(intent *intents.PaymentIntentNS) chan intents.PaymentStatus {
 	status := make(chan intents.PaymentStatus)
 
 	return status

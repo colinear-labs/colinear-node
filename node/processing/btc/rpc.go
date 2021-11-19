@@ -3,8 +3,8 @@ package btc
 import (
 	"math/big"
 	"time"
-	"xnode/intents/basechain"
 	"xnode/nodeutil"
+	"xnode/processing/basechain"
 
 	"github.com/imroc/req"
 )
