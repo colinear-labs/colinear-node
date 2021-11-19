@@ -9,6 +9,11 @@ don't lol
 
 ## Development
 
+#### Clone the repository:
+```bash
+git clone --recursive https://github.com/Super-Secret-Crypto-Kiddies/x-node.git
+```
+
 #### Build from source:
 
 ```bash
