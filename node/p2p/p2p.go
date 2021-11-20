@@ -4,7 +4,8 @@ package p2p
 
 import (
 	"fmt"
-
+	"xnode/processing"
+	"xnode/runtime"
 	"xnode/xutil"
 
 	"github.com/perlin-network/noise"
@@ -22,12 +23,30 @@ func InitServer() *noise.Node {
 	node.RegisterMessage(xutil.PaymentResponse{}, xutil.UnmarshalPaymentResponse)
 
 	node.Handle(func(ctx noise.HandlerContext) error {
-		if !ctx.IsRequest() {
+		obj, err := ctx.DecodeMessage()
+		if err != nil {
 			return nil
 		}
-		fmt.Printf("Received request: %s\n", string(ctx.Data()))
+		paymentIntent, ok := obj.(xutil.PaymentIntent)
+		if ok {
+			targetProcessor, ok2 := runtime.Processors[paymentIntent.Currency]
+			if !ok2 {
+				ctx.Send([]byte(fmt.Sprintf("Currency %s is not supported.", paymentIntent.Currency)))
+				return nil
+			}
 
-		return ctx.Send([]byte("Hello from the server!"))
+			localIntent := processing.NewPaymentIntentLocal(
+				paymentIntent.Currency,
+				paymentIntent.Amount,
+				paymentIntent.To,
+			)
+
+			go func() {
+				targetProcessor.Process(localIntent)
+			}()
+		}
+
+		return nil
 	})
 
 	node.Listen()
