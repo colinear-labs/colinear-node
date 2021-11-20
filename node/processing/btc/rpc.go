@@ -72,6 +72,9 @@ func JsonRpcListenMempool(processor *BtcProcessor) {
 
 		respGrm.ToJSON(&resultGrm)
 
+		// Create new list of pending transactions
+
+		newPendingTxs := []basechain.Tx{}
 		for _, txid := range resultGrm.Result {
 
 			resultGto := getTxOutResponse{}
@@ -96,9 +99,12 @@ func JsonRpcListenMempool(processor *BtcProcessor) {
 				To:     addr,
 			}
 
-			processor.Chain.PendingTxs = append(processor.Chain.PendingTxs, newTx)
-
+			newPendingTxs = append(newPendingTxs, newTx)
 		}
+
+		// Set pending txs to new list
+
+		processor.Chain.PendingTxs = newPendingTxs
 
 		// Can arbitrarily change this to whatever.
 		// Consider making it a per-chain thing eventually?
@@ -194,7 +200,7 @@ type scriptPubKey struct {
 func JsonRpcListenBlocks(processor *BtcProcessor) {
 	for {
 
-		blockHash := <-processor.NewBlockEvents
+		blockHash := <-processor.NewBlockRpcEvents
 
 		resultGb := getBlockResponse{}
 
@@ -246,8 +252,11 @@ func JsonRpcListenBlocks(processor *BtcProcessor) {
 			Nonce:      (uint32)(rgbh.Nonce),
 		}
 
-		processor.Chain.NewBlock(newBlock)
-		processor.Chain.NewHeader(newHeader)
+		processor.Chain.SetLatestBlock(newBlock)
+		processor.Chain.SetLatestHeader(newHeader)
+
+		// Update new LOCAL blocks channel (used by Process() goroutines)
+		processor.NewBlockLocalEvents <- blockHash
 	}
 
 }
