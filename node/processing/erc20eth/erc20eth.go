@@ -34,7 +34,7 @@ func (p *ERC20EthProcessor) CurrencyId() string {
 	return p.Id
 }
 
-func (p *ERC20EthProcessor) Process(intent *processing.PaymentIntentNS) chan processing.PaymentStatus {
+func (p *ERC20EthProcessor) Process(intent *processing.PaymentIntentLocal) chan processing.PaymentStatus {
 	status := make(chan processing.PaymentStatus)
 
 	amtInt64, _ := intent.Amount.Int64()
