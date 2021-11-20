@@ -39,8 +39,10 @@ func (p *EthProcessor) Process(intent *processing.PaymentIntentLocal) chan proce
 	amtEth := big.NewInt(amtInt64)
 	toEth := common.HexToAddress(intent.To)
 
-	// Pending transaction Loop
 	go func() {
+
+		// Pending transaction Loop
+
 	secondsLoop:
 		for {
 			balance, _ := p.Client.PendingBalanceAt(context.Background(), toEth)
@@ -52,10 +54,8 @@ func (p *EthProcessor) Process(intent *processing.PaymentIntentLocal) chan proce
 
 			time.Sleep(1 * time.Second)
 		}
-	}()
 
-	// Verified Transaction Loop
-	go func() {
+		// Verified Transaction Loop
 
 		headers := make(chan *types.Header)
 		sub, err := p.Client.SubscribeNewHead(context.Background(), headers)
