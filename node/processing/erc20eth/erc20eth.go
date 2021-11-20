@@ -3,6 +3,7 @@ package erc20eth
 import (
 	"math/big"
 	"time"
+	"xnode/processing"
 	"xnode/processing/erc20eth/erc20abi"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -33,8 +34,8 @@ func (p *ERC20EthProcessor) CurrencyId() string {
 	return p.Id
 }
 
-func (p *ERC20EthProcessor) Process(intent *intents.PaymentIntentNS) chan intents.PaymentStatus {
-	status := make(chan intents.PaymentStatus)
+func (p *ERC20EthProcessor) Process(intent *processing.PaymentIntentNS) chan processing.PaymentStatus {
+	status := make(chan processing.PaymentStatus)
 
 	amtInt64, _ := intent.Amount.Int64()
 	amtEth := big.NewInt(amtInt64)
@@ -52,7 +53,7 @@ func (p *ERC20EthProcessor) Process(intent *intents.PaymentIntentNS) chan intent
 			balance, _ := p.Contract.BalanceOf(nil, toEth)
 			comparison := balance.Cmp(amtEth)
 			if comparison == 1 || comparison == 0 {
-				status <- intents.Verified
+				status <- processing.Verified
 				break verifiedLoop
 			}
 			time.Sleep(1 * time.Second)

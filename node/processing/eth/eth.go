@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"time"
+	"xnode/processing"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -31,8 +32,8 @@ func (p *EthProcessor) CurrencyId() string {
 	return p.Id
 }
 
-func (p *EthProcessor) Process(intent *intents.PaymentIntentNS) chan intents.PaymentStatus {
-	status := make(chan intents.PaymentStatus)
+func (p *EthProcessor) Process(intent *processing.PaymentIntentNS) chan processing.PaymentStatus {
+	status := make(chan processing.PaymentStatus)
 
 	amtInt64, _ := intent.Amount.Int64()
 	amtEth := big.NewInt(amtInt64)
@@ -45,7 +46,7 @@ func (p *EthProcessor) Process(intent *intents.PaymentIntentNS) chan intents.Pay
 			balance, _ := p.Client.PendingBalanceAt(context.Background(), toEth)
 			comparison := balance.Cmp(amtEth)
 			if comparison == 1 || comparison == 0 {
-				status <- intents.Verified
+				status <- processing.Verified
 				break secondsLoop
 			}
 
@@ -71,7 +72,7 @@ func (p *EthProcessor) Process(intent *intents.PaymentIntentNS) chan intents.Pay
 				balance, _ := p.Client.BalanceAt(context.Background(), toEth, header.Number)
 				comparison := balance.Cmp(amtEth)
 				if comparison == 1 || comparison == 0 {
-					status <- intents.Verified
+					status <- processing.Verified
 					break headerLoop
 				}
 			}
