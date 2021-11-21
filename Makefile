@@ -9,10 +9,10 @@ abigen:
 build:
 	@mkdir -p node/bin
 	cd node && \
-	GOOS=linux GOARCH=arm go build -o bin/xnode-linux-arm; \
-	GOOS=linux GOARCH=arm64 go build -o bin/xnode-linux-arm64; \
-	GOOS=linux GOARCH=386 go build -o bin/xnode-linux-386; \
-	GOOS=linux GOARCH=amd64 go build -o bin/xnode-linux-amd64; \
+	GOOS=linux GOARCH=arm go build -o bin/x-node-linux-arm; \
+	GOOS=linux GOARCH=arm64 go build -o bin/x-node-linux-arm64; \
+	GOOS=linux GOARCH=386 go build -o bin/x-node-linux-386; \
+	GOOS=linux GOARCH=amd64 go build -o bin/x-node-linux-amd64; \
 
 clean:
 	@rm -rf node/bin
@@ -20,6 +20,8 @@ clean:
 
 release: abigen build 
 	@mkdir -p release
-	@cp -r cli docker-compose.yml extnodes release
-	@mkdir -p release/node
-	@cp node-release.Dockerfile release/node/Dockerfile
+	@cp -r docker-compose.yml extnodes release
+	@cp cli release/x-node
+	@mkdir -p release/node-release
+	@cp node-release.Dockerfile release/node-release/Dockerfile
+	@cp node/bin/* release/node-release/

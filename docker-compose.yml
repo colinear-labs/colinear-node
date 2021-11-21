@@ -10,13 +10,14 @@ services:
 
   xnode-prod: 
     build:
-      context: "./node-prod"
+      context: "./node-release"
     network_mode: "host"
     profiles: ["xnode-prod"]
 
   btc:
     build:
-      context: "./extnodes/btc"
+      context: "./extnodes"
+      dockerfile: "btc.Dockerfile"
     network_mode: "host"
     ports:
       - "127.0.0.1:5000:5000"
@@ -26,7 +27,8 @@ services:
 
   eth:
     build: 
-      context: "./extnodes/eth"
+      context: "./extnodes"
+      dockerfile: "eth.Dockerfile"
     ports:
       - "30303:30303" 
       - "127.0.0.1:5001:5001"
@@ -35,7 +37,8 @@ services:
 
   bch:
     build: 
-      context: "./extnodes/bch"
+      context: "./extnodes"
+      dockerfile: "bch.Dockerfile"
     network_mode: "host"
     ports:
       - "8333:8333" 
@@ -45,7 +48,8 @@ services:
 
   ltc:
     build:
-      context: "./extnodes/ltc"
+      context: "./extnodes"
+      dockerfile: "ltc.Dockerfile"
     network_mode: "host"
     ports:
       - "9333:9333"
@@ -55,7 +59,8 @@ services:
 
   doge:
     build: 
-      context: "./extnodes/doge"
+      context: "./extnodes"
+      dockerfile: "doge.Dockerfile"
     network_mode: "host"
     ports:
       - "22556:22556" 
@@ -65,7 +70,8 @@ services:
 
   xmr:
     build: 
-      context: "./extnodes/xmr"
+      context: "./extnodes"
+      dockerfile: "xmr.Dockerfile"
     ports:
       - "18080:18080" 
       - "127.0.0.1:5005:5005"
@@ -74,7 +80,8 @@ services:
 
   zec:
     build: 
-      context: "./extnodes/zec"
+      context: "./extnodes"
+      dockerfile: "xmr.Dockerfile"
     ports:
       - "8233:8233" 
       - "127.0.0.1:5006:5006"
