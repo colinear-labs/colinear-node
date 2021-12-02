@@ -17,7 +17,7 @@ func main() {
 	logger, _ := zap.NewDevelopment(zap.AddStacktrace(zap.PanicLevel))
 	defer logger.Sync()
 
-	node, _ := noise.NewNode(noise.WithNodeLogger(logger), noise.WithNodeBindPort(9000))
+	node, _ := noise.NewNode(noise.WithNodeLogger(logger), noise.WithNodeBindPort(9871))
 	defer node.Close()
 
 	overlay := kademlia.New()
@@ -33,7 +33,7 @@ func main() {
 		panic(err)
 	}
 
-	address := "127.0.0.1:9000"
+	address := "127.0.0.1:9871"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	_, err := node.Ping(ctx, address) // where the magic happens
