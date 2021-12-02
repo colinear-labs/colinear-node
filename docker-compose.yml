@@ -14,6 +14,9 @@ services:
     network_mode: "host"
     profiles: ["xnode-prod"]
 
+    # TODO / FUTURE: Change full node RPC ports from "ports" to "expose", 
+    # so that only local docker containers can acccess them
+
   btc:
     build:
       context: "./extnodes"
