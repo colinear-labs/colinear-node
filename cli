@@ -27,7 +27,7 @@ nodes = {
 }
 
 # profiles_args = ["--profile", "xnode-dev" if args.develop else "xnode-prod"]
-profiles_args = []
+profiles_args = [] if args.develop else ["--profile", "xnode-prod"]
 if args.chains != None:
     if 'btc' in args.chains and 'bch' in args.chains:
         raise Exception("BTC and BCH nodes both use conflicting port 8333. Please choose only one.")
