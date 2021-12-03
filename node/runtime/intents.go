@@ -9,6 +9,7 @@ import (
 	"xnode/processing/btc"
 	"xnode/processing/erc20eth"
 	"xnode/processing/eth"
+	"xnode/xutil/currencies"
 )
 
 var Processors = make(map[string]processing.Processor)
@@ -30,13 +31,7 @@ func InitProcessors(selectedCurrencies []string) {
 		case "eth":
 			ethProcessor := eth.NewEthProcessor(currency, processing.NodePorts[currency])
 			Processors[currency] = ethProcessor
-			for _, e := range []string{
-				"dai",
-				"usdt",
-				"usdc",
-				"ust",
-				// "ampl",
-			} {
+			for _, e := range currencies.EthTokens {
 				Processors[currency] = erc20eth.NewERC20EthProcessor(
 					e,
 					processing.TokenAddresses[currency],
@@ -54,7 +49,8 @@ var btcBlockNotifyServerRunning bool = false
 // & pushes new events to the NewBlockEvents channel
 func SpawnBtcBlockNotifyServer() {
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux() // see: https://varunksaini.com/posts/go-http-multiple-registration-error/
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			fmt.Printf("HTTP ERROR %s", err)

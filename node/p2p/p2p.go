@@ -7,31 +7,48 @@ import (
 	"xnode/processing"
 	"xnode/runtime"
 	"xnode/xutil"
+	"xnode/xutil/currencies"
 
 	"github.com/perlin-network/noise"
 )
 
-func InitServer() *noise.Node {
+var Node *noise.Node = nil
 
-	node, err := noise.NewNode()
+func InitServer() {
+
+	Node, err := noise.NewNode(noise.WithNodeBindPort(9871))
 	if err != nil {
 		panic(err)
 	}
-	defer node.Close()
+	defer Node.Close()
 
-	node.RegisterMessage(xutil.PaymentIntent{}, xutil.UnmarshalPaymentIntent)
-	node.RegisterMessage(xutil.PaymentResponse{}, xutil.UnmarshalPaymentResponse)
+	Node.RegisterMessage(xutil.PaymentIntent{}, xutil.UnmarshalPaymentIntent)
+	Node.RegisterMessage(xutil.PaymentResponse{}, xutil.UnmarshalPaymentResponse)
 
-	node.Handle(func(ctx noise.HandlerContext) error {
+	Node.Handle(func(ctx noise.HandlerContext) error {
 		obj, err := ctx.DecodeMessage()
+
 		if err != nil {
+			// try []byte encoding instead
+
+			if (string)(ctx.Data()) == "peerinfo" {
+				ctx.SendMessage(xutil.PeerInfo{
+					Type:       xutil.Node,
+					Currencies: currencies.Chains,
+				})
+			}
 			return nil
 		}
+
 		paymentIntent, ok := obj.(xutil.PaymentIntent)
 		if ok {
 			targetProcessor, ok2 := runtime.Processors[paymentIntent.Currency]
 			if !ok2 {
-				ctx.Send([]byte(fmt.Sprintf("Currency %s is not supported.", paymentIntent.Currency)))
+				fmt.Printf("Request failed: Currency %s is not supported.\n", paymentIntent.Currency)
+				ctx.SendMessage(xutil.PaymentResponse{
+					To:     paymentIntent.To,
+					Status: xutil.IntentError,
+				})
 				return nil
 			}
 
@@ -42,6 +59,7 @@ func InitServer() *noise.Node {
 			)
 
 			go func() {
+				fmt.Printf("Now processing intent %s", paymentIntent)
 				targetProcessor.Process(localIntent)
 			}()
 		}
@@ -49,7 +67,5 @@ func InitServer() *noise.Node {
 		return nil
 	})
 
-	node.Listen()
-
-	return node
+	Node.Listen()
 }

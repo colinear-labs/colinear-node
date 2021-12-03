@@ -1,52 +1,53 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"os"
-	"os/signal"
-	"time"
-
-	"github.com/perlin-network/noise"
-	"github.com/perlin-network/noise/kademlia"
-	"go.uber.org/zap"
+	"xnode/p2p"
+	"xnode/runtime"
+	"xnode/xutil/currencies"
 )
 
 func main() {
 
-	logger, _ := zap.NewDevelopment(zap.AddStacktrace(zap.PanicLevel))
-	defer logger.Sync()
+	// temporarily hard-code broadcasted chains for testing
+	currencies.Chains = []string{"btc", "eth", "ltc"}
 
-	node, _ := noise.NewNode(noise.WithNodeLogger(logger), noise.WithNodeBindPort(9871))
-	defer node.Close()
+	runtime.InitProcessors(currencies.Chains)
 
-	overlay := kademlia.New()
-	node.Bind(overlay.Protocol())
+	p2p.InitServer()
 
-	node.Handle(func(ctx noise.HandlerContext) error {
-		fmt.Printf("Got a message from %s: '%s'\n", ctx.ID().Host, string(ctx.Data()))
+	// logger, _ := zap.NewDevelopment(zap.AddStacktrace(zap.PanicLevel))
+	// defer logger.Sync()
 
-		return nil
-	})
+	// node, _ := noise.NewNode(noise.WithNodeLogger(logger), noise.WithNodeBindPort(9871))
+	// defer node.Close()
 
-	if err := node.Listen(); err != nil {
-		panic(err)
-	}
+	// overlay := kademlia.New()
+	// node.Bind(overlay.Protocol())
 
-	address := "127.0.0.1:9871"
+	// node.Handle(func(ctx noise.HandlerContext) error {
+	// 	fmt.Printf("Got a message from %s: '%s'\n", ctx.ID().Host, string(ctx.Data()))
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	_, err := node.Ping(ctx, address) // where the magic happens
-	cancel()
+	// 	return nil
+	// })
 
-	if err != nil {
-		fmt.Printf("Failed to ping node (%s). Skipping... [error: %s]\n", address, err)
-	}
+	// if err := node.Listen(); err != nil {
+	// 	panic(err)
+	// }
 
-	node.Send(ctx, address, []byte("hello"))
-	cancel()
+	// address := "127.0.0.1:9871"
 
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	<-c
+	// ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// _, err := node.Ping(ctx, address) // where the magic happens
+	// cancel()
+
+	// if err != nil {
+	// 	fmt.Printf("Failed to ping node (%s). Skipping... [error: %s]\n", address, err)
+	// }
+
+	// node.Send(ctx, address, []byte("hello"))
+	// cancel()
+
+	// c := make(chan os.Signal, 1)
+	// signal.Notify(c, os.Interrupt)
+	// <-c
 }
