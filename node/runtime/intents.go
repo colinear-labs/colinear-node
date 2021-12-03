@@ -15,9 +15,9 @@ import (
 var Processors = make(map[string]processing.Processor)
 
 // Initialize PaymentIntent processing + define processors in dict
-func InitProcessors(selectedCurrencies []string) {
+func InitProcessors(selectedChains []string) {
 
-	for _, currency := range selectedCurrencies {
+	for _, currency := range selectedChains {
 		switch currency {
 		case "btc", "ltc", "bch", "doge":
 			// later, consider changing historyLen per-chain-- but leave it at 10 for now.
@@ -25,16 +25,18 @@ func InitProcessors(selectedCurrencies []string) {
 			if !btcBlockNotifyServerRunning {
 				go func() {
 					SpawnBtcBlockNotifyServer()
-					btcBlockNotifyServerRunning = true
 				}()
+				btcBlockNotifyServerRunning = true
 			}
 		case "eth":
 			ethProcessor := eth.NewEthProcessor(currency, processing.NodePorts[currency])
+			currencies.SupportAllEthTokens()
 			Processors[currency] = ethProcessor
 			for _, e := range currencies.EthTokens {
-				Processors[currency] = erc20eth.NewERC20EthProcessor(
+				Processors[e] = erc20eth.NewERC20EthProcessor(
 					e,
-					processing.TokenAddresses[currency],
+					// processing.TokenAddresses[currency],
+					currencies.CurrencyData[currency].TokenAddress,
 					ethProcessor.Client,
 				)
 			}

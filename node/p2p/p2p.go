@@ -44,6 +44,7 @@ func InitServer() {
 		if ok {
 			targetProcessor, ok2 := runtime.Processors[paymentIntent.Currency]
 			if !ok2 {
+				fmt.Println(runtime.Processors)
 				fmt.Printf("Request failed: Currency %s is not supported.\n", paymentIntent.Currency)
 				ctx.SendMessage(xutil.PaymentResponse{
 					To:     paymentIntent.To,
@@ -59,7 +60,7 @@ func InitServer() {
 			)
 
 			go func() {
-				fmt.Printf("Now processing intent %s", paymentIntent)
+				fmt.Printf("Now processing intent %s\n", paymentIntent)
 				targetProcessor.Process(localIntent)
 			}()
 		}

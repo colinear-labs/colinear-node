@@ -6,6 +6,7 @@ import (
 	"xnode/processing"
 	"xnode/processing/erc20eth/erc20abi"
 
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
@@ -41,16 +42,34 @@ func (p *ERC20EthProcessor) Process(intent *processing.PaymentIntentLocal) chan 
 	amtEth := big.NewInt(amtInt64)
 	toEth := common.HexToAddress(intent.To)
 
-	// Pending transaction loop
-	// NOTE: FIND OUT HOW TO GET PENDING BALANCES FROM ERC20ABI BINDINGS
 	go func() {
-	}()
 
-	// Verified transaction loop
-	go func() {
+		// Pending transaction loop
+	pendingLoop:
+		for {
+			balance, err := p.Contract.BalanceOf(&bind.CallOpts{
+				Pending: true,
+			}, toEth)
+			if err != nil {
+				panic(err)
+			}
+			comparison := balance.Cmp(amtEth)
+			if comparison == 1 || comparison == 0 {
+				status <- processing.Pending
+				break pendingLoop
+			}
+			time.Sleep(1 * time.Second)
+		}
+
+		// Verified transaction loop
 	verifiedLoop:
 		for {
-			balance, _ := p.Contract.BalanceOf(nil, toEth)
+			balance, err := p.Contract.BalanceOf(&bind.CallOpts{
+				Pending: false,
+			}, toEth)
+			if err != nil {
+				panic(err)
+			}
 			comparison := balance.Cmp(amtEth)
 			if comparison == 1 || comparison == 0 {
 				status <- processing.Verified
@@ -58,6 +77,7 @@ func (p *ERC20EthProcessor) Process(intent *processing.PaymentIntentLocal) chan 
 			}
 			time.Sleep(1 * time.Second)
 		}
+
 	}()
 
 	return status

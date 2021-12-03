@@ -9,7 +9,7 @@ import (
 func main() {
 
 	// temporarily hard-code broadcasted chains for testing
-	currencies.Chains = []string{"btc", "eth", "ltc"}
+	currencies.Chains = []string{"btc", "ltc", "eth"}
 
 	runtime.InitProcessors(currencies.Chains)
 
