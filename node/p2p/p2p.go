@@ -3,29 +3,50 @@
 package p2p
 
 import (
+	"context"
 	"fmt"
+	"time"
 	"xnode/processing"
 	"xnode/runtime"
 	"xnode/xutil"
 	"xnode/xutil/currencies"
+	"xnode/xutil/ipassign"
+	"xnode/xutil/p2pshared"
 
 	"github.com/perlin-network/noise"
+	"github.com/perlin-network/noise/kademlia"
 )
 
 var Node *noise.Node = nil
 
-func InitServer() {
+func InitP2P() {
 
-	Node, err := noise.NewNode(noise.WithNodeBindPort(9871))
+	// logger, _ := zap.NewDevelopment()
+
+	port := 9871
+	broadcastIp := ipassign.GetIPv6Address()
+
+	Node, err := noise.NewNode(
+		noise.WithNodeBindPort((uint16)(port)),
+		noise.WithNodeAddress(fmt.Sprintf("[%s]:%d", broadcastIp, port)),
+		// noise.WithNodeLogger(logger),
+	)
 	if err != nil {
 		panic(err)
 	}
 	defer Node.Close()
 
-	Node.RegisterMessage(xutil.PaymentIntent{}, xutil.UnmarshalPaymentIntent)
-	Node.RegisterMessage(xutil.PaymentResponse{}, xutil.UnmarshalPaymentResponse)
+	k := kademlia.New()
+	Node.Bind(k.Protocol())
+
+	xutil.RegisterNodeMessages(Node)
 
 	Node.Handle(func(ctx noise.HandlerContext) error {
+
+		if ctx.IsRequest() {
+			return nil
+		}
+
 		obj, err := ctx.DecodeMessage()
 
 		if err != nil {
@@ -68,5 +89,37 @@ func InitServer() {
 		return nil
 	})
 
-	Node.Listen()
+	if err := Node.Listen(); err != nil {
+		panic(err)
+	}
+
+	// Ping bootstrap nodes to make the network aware of presence
+
+	// NOTE: idk if looping this is necessary for full nodes lol
+	// it could be that we just need to ping once then we're done
+
+	go func() {
+
+		for {
+
+			timeoutCtx, _ := context.WithTimeout(context.Background(), time.Duration(5*time.Second))
+			for _, addr := range p2pshared.BootstrapNodes {
+				if _, err := Node.Ping(timeoutCtx, addr+":9871"); err != nil {
+					fmt.Printf("Failed to ping bootstrap node at %s.\n", addr)
+				} else {
+					fmt.Printf("Pinged bootstrap node at %s.\n", addr)
+				}
+			}
+
+			Peers := k.Discover()
+			fmt.Printf("Peers: %s\n", fmt.Sprint(Peers))
+
+			// wait 10 mins before contacting bootstrap nodes again
+
+			time.Sleep(10 * time.Minute)
+			// time.Sleep(5 * time.Second)
+
+		}
+
+	}()
 }

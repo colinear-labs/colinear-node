@@ -13,7 +13,7 @@ func main() {
 
 	runtime.InitProcessors(currencies.Chains)
 
-	p2p.InitServer()
+	p2p.InitP2P()
 
 	// logger, _ := zap.NewDevelopment(zap.AddStacktrace(zap.PanicLevel))
 	// defer logger.Sync()
