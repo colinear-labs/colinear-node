@@ -1,6 +1,7 @@
 package btc
 
 import (
+	"fmt"
 	"math/big"
 	"time"
 	"xnode/nodeutil"
@@ -82,7 +83,7 @@ func JsonRpcListenMempool(processor *BtcProcessor) {
 			payloadGrm := getTxOutJsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getrawmempool", Params: optsGto}
 			respGto, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGrm))
 			if err != nil {
-				panic(err)
+				fmt.Println(err)
 			}
 
 			respGto.ToJSON(&resultGto)
@@ -220,7 +221,7 @@ func JsonRpcListenBlocks(processor *BtcProcessor) {
 		respGbh, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGbh))
 
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 		}
 
 		respGbh.ToJSON(&resultGbh)
