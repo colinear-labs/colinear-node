@@ -45,7 +45,7 @@ else:
 
 print(f"Running on ports: {' '.join([str(nodes[node]) for node in profiles])}")
 
-command = ["docker", "compose", *profiles_args, "up"]
+command = ["docker-compose", *profiles_args, "up"]
 if args.recreate:
     command.append("--build")
     command.append("--force-recreate")
