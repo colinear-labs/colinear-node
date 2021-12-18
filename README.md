@@ -11,7 +11,7 @@ don't lol
 
 #### Clone the repository:
 ```bash
-git clone --recursive https://github.com/Super-Secret-Crypto-Kiddies/x-node.git
+git clone --recursive https://github.com/colinear-labs/colinear-node.git
 ```
 
 #### Build from source:
