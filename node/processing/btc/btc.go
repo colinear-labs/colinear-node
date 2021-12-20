@@ -7,8 +7,9 @@ package btc
 import (
 	"math/big"
 	"time"
-	"xnode/processing"
-	"xnode/processing/basechain"
+
+	"github.com/colinear-labs/colinear-node/processing"
+	"github.com/colinear-labs/colinear-node/processing/basechain"
 )
 
 type BtcProcessor struct {

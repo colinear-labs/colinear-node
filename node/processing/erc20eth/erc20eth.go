@@ -3,8 +3,8 @@ package erc20eth
 import (
 	"math/big"
 	"time"
-	"xnode/processing"
-	"xnode/processing/erc20eth/erc20abi"
+	"github.com/colinear-labs/colinear-node/processing"
+	"github.com/colinear-labs/colinear-node/processing/erc20eth/erc20abi"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"

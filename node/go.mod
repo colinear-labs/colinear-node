@@ -1,4 +1,4 @@
-module xnode
+module github.com/colinear-labs/colinear-node
 
 go 1.17
 

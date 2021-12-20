@@ -5,11 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"xnode/processing"
-	"xnode/processing/btc"
-	"xnode/processing/erc20eth"
-	"xnode/processing/eth"
-	"xnode/xutil/currencies"
+
+	"github.com/colinear-labs/colinear-node/processing"
+	"github.com/colinear-labs/colinear-node/processing/btc"
+	"github.com/colinear-labs/colinear-node/processing/erc20eth"
+	"github.com/colinear-labs/colinear-node/processing/eth"
+	"github.com/colinear-labs/colinear-node/xutil/currencies"
 )
 
 var Processors = make(map[string]processing.Processor)

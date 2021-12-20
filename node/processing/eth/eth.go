@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"time"
-	"xnode/processing"
+	"github.com/colinear-labs/colinear-node/processing"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

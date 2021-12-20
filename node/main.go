@@ -1,15 +1,16 @@
 package main
 
 import (
-	"xnode/p2p"
-	"xnode/runtime"
-	"xnode/xutil/currencies"
+	"github.com/colinear-labs/colinear-node/p2p"
+	"github.com/colinear-labs/colinear-node/runtime"
+	"github.com/colinear-labs/colinear-node/xutil/currencies"
 )
 
 func main() {
 
 	// temporarily hard-code broadcasted chains for testing
-	currencies.Chains = []string{"btc", "ltc", "eth"}
+	// currencies.Chains = []string{"btc", "ltc", "eth"}
+	currencies.Chains = []string{"btc", "eth"}
 
 	runtime.InitProcessors(currencies.Chains)
 

@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"math/big"
 	"time"
-	"xnode/nodeutil"
-	"xnode/processing/basechain"
+
+	"github.com/colinear-labs/colinear-node/nodeutil"
+	"github.com/colinear-labs/colinear-node/processing/basechain"
 
 	"github.com/imroc/req"
 )
