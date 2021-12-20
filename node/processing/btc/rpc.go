@@ -67,7 +67,7 @@ func JsonRpcListenMempool(processor *BtcProcessor) {
 
 		optsGrm := getRawMempoolArgs{Verbose: false, MempoolSequence: false}
 		payloadGrm := getRawMempoolJsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getrawmempool", Params: optsGrm}
-		respGrm, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGrm))
+		respGrm, err := req.Post(fmt.Sprintf("http://user:pass@127.0.0.1:%d", processor.Port), req.BodyJSON(&payloadGrm))
 		if err != nil {
 			panic(err)
 		}
@@ -82,7 +82,7 @@ func JsonRpcListenMempool(processor *BtcProcessor) {
 			resultGto := getTxOutResponse{}
 			optsGto := getTxOutArgs{Txid: txid, VoutNumber: 1, IncludeMempool: true}
 			payloadGrm := getTxOutJsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getrawmempool", Params: optsGto}
-			respGto, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGrm))
+			respGto, err := req.Post(fmt.Sprintf("http://user:pass@127.0.0.1:%d", processor.Port), req.BodyJSON(&payloadGrm))
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -208,7 +208,7 @@ func JsonRpcListenBlocks(processor *BtcProcessor) {
 
 		optsGb := getBlockArgs{Blockhash: blockHash, Verbosity: 2}
 		payloadGb := getBlockJsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getblock", Params: optsGb}
-		respGb, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGb))
+		respGb, err := req.Post(fmt.Sprintf("http://user:pass@127.0.0.1:%d", processor.Port), req.BodyJSON(&payloadGb))
 
 		if err != nil {
 			panic(err)
@@ -219,7 +219,7 @@ func JsonRpcListenBlocks(processor *BtcProcessor) {
 		resultGbh := getBlockHeaderResponse{}
 		optsGbh := getBlockHeaderArgs{Hash: blockHash, Verbose: true}
 		payloadGbh := getBlockHeaderJsonRequest{Jsonrpc: "1.0", Id: "xyz", Method: "getblockheader", Params: optsGbh}
-		respGbh, err := req.Post("http://user:pass@127.0.0.1:5003", req.BodyJSON(&payloadGbh))
+		respGbh, err := req.Post(fmt.Sprintf("http://user:pass@127.0.0.1:%d", processor.Port), req.BodyJSON(&payloadGbh))
 
 		if err != nil {
 			fmt.Println(err)
