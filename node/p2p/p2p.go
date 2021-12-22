@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"time"
+
 	"github.com/colinear-labs/colinear-node/processing"
 	"github.com/colinear-labs/colinear-node/runtime"
 	"github.com/colinear-labs/colinear-node/xutil"
@@ -82,7 +83,29 @@ func InitP2P() {
 
 			go func() {
 				fmt.Printf("Now processing intent %s\n", paymentIntent)
-				targetProcessor.Process(localIntent)
+				statusChannel := targetProcessor.Process(localIntent)
+				for {
+
+					status := <-statusChannel
+					ctx.SendMessage(xutil.PaymentResponse{
+						To:     paymentIntent.To,
+						Status: status,
+					})
+
+					if status == xutil.IntentError || status == xutil.Verified {
+						break
+					}
+
+				}
+
+				// timeout is already handled inside processing loop, so this isn't necessary
+
+				// select {
+				// case s := <-paymentStatus:
+				// stuff
+				// case <-time.After(time.Duration(currencies.CurrencyData[targetProcessor.CurrencyId()].PendingTimeoutSeconds) * time.Second):
+				// stuff
+				// }
 			}()
 		}
 

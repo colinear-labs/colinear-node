@@ -2,13 +2,8 @@ package processing
 
 import (
 	"math/big"
-)
 
-type PaymentStatus int
-
-const (
-	Pending = iota
-	Verified
+	"github.com/colinear-labs/colinear-node/xutil"
 )
 
 // Node-side payment intent representation.
@@ -16,7 +11,7 @@ type PaymentIntentLocal struct {
 	CurrencyId string
 	Amount     *big.Float
 	To         string
-	Status     chan PaymentStatus
+	Status     chan xutil.PaymentStatus
 }
 
 func NewPaymentIntentLocal(currencyId string, amount *big.Float, to string) *PaymentIntentLocal {
@@ -24,11 +19,11 @@ func NewPaymentIntentLocal(currencyId string, amount *big.Float, to string) *Pay
 		CurrencyId: currencyId,
 		Amount:     amount,
 		To:         to,
-		Status:     make(chan PaymentStatus),
+		Status:     make(chan xutil.PaymentStatus),
 	}
 }
 
 type Processor interface {
 	CurrencyId() string
-	Process(*PaymentIntentLocal) chan PaymentStatus
+	Process(*PaymentIntentLocal) chan xutil.PaymentStatus
 }

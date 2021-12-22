@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"math/big"
 	"time"
+
 	"github.com/colinear-labs/colinear-node/processing"
+	"github.com/colinear-labs/colinear-node/xutil"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -32,8 +34,8 @@ func (p *EthProcessor) CurrencyId() string {
 	return p.Id
 }
 
-func (p *EthProcessor) Process(intent *processing.PaymentIntentLocal) chan processing.PaymentStatus {
-	status := make(chan processing.PaymentStatus)
+func (p *EthProcessor) Process(intent *processing.PaymentIntentLocal) chan xutil.PaymentStatus {
+	status := make(chan xutil.PaymentStatus)
 
 	amtInt64, _ := intent.Amount.Int64()
 	amtEth := big.NewInt(amtInt64)
@@ -48,7 +50,7 @@ func (p *EthProcessor) Process(intent *processing.PaymentIntentLocal) chan proce
 			balance, _ := p.Client.PendingBalanceAt(context.Background(), toEth)
 			comparison := balance.Cmp(amtEth)
 			if comparison == 1 || comparison == 0 {
-				status <- processing.Verified
+				status <- xutil.Verified
 				break secondsLoop
 			}
 
@@ -72,7 +74,7 @@ func (p *EthProcessor) Process(intent *processing.PaymentIntentLocal) chan proce
 				balance, _ := p.Client.BalanceAt(context.Background(), toEth, header.Number)
 				comparison := balance.Cmp(amtEth)
 				if comparison == 1 || comparison == 0 {
-					status <- processing.Verified
+					status <- xutil.Verified
 					break headerLoop
 				}
 			}

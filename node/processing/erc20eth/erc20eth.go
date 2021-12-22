@@ -3,8 +3,10 @@ package erc20eth
 import (
 	"math/big"
 	"time"
+
 	"github.com/colinear-labs/colinear-node/processing"
 	"github.com/colinear-labs/colinear-node/processing/erc20eth/erc20abi"
+	"github.com/colinear-labs/colinear-node/xutil"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -35,8 +37,8 @@ func (p *ERC20EthProcessor) CurrencyId() string {
 	return p.Id
 }
 
-func (p *ERC20EthProcessor) Process(intent *processing.PaymentIntentLocal) chan processing.PaymentStatus {
-	status := make(chan processing.PaymentStatus)
+func (p *ERC20EthProcessor) Process(intent *processing.PaymentIntentLocal) chan xutil.PaymentStatus {
+	status := make(chan xutil.PaymentStatus)
 
 	amtInt64, _ := intent.Amount.Int64()
 	amtEth := big.NewInt(amtInt64)
@@ -55,7 +57,7 @@ func (p *ERC20EthProcessor) Process(intent *processing.PaymentIntentLocal) chan 
 			}
 			comparison := balance.Cmp(amtEth)
 			if comparison == 1 || comparison == 0 {
-				status <- processing.Pending
+				status <- xutil.Pending
 				break pendingLoop
 			}
 			time.Sleep(1 * time.Second)
@@ -72,7 +74,7 @@ func (p *ERC20EthProcessor) Process(intent *processing.PaymentIntentLocal) chan 
 			}
 			comparison := balance.Cmp(amtEth)
 			if comparison == 1 || comparison == 0 {
-				status <- processing.Verified
+				status <- xutil.Verified
 				break verifiedLoop
 			}
 			time.Sleep(1 * time.Second)

@@ -10,6 +10,7 @@ import (
 
 	"github.com/colinear-labs/colinear-node/processing"
 	"github.com/colinear-labs/colinear-node/processing/basechain"
+	"github.com/colinear-labs/colinear-node/xutil"
 )
 
 type BtcProcessor struct {
@@ -43,8 +44,8 @@ func (p *BtcProcessor) CurrencyId() string {
 	return p.Id
 }
 
-func (p *BtcProcessor) Process(intent *processing.PaymentIntentLocal) chan processing.PaymentStatus {
-	status := make(chan processing.PaymentStatus)
+func (p *BtcProcessor) Process(intent *processing.PaymentIntentLocal) chan xutil.PaymentStatus {
+	status := make(chan xutil.PaymentStatus)
 
 	go func() {
 
@@ -59,7 +60,7 @@ func (p *BtcProcessor) Process(intent *processing.PaymentIntentLocal) chan proce
 					pSum = pSum.Add(pSum, p.Amount)
 					compare := intent.Amount.Cmp(pSum)
 					if compare > 0 {
-						status <- processing.Verified
+						status <- xutil.Verified
 						break pendingLoop
 					}
 				}
@@ -80,7 +81,7 @@ func (p *BtcProcessor) Process(intent *processing.PaymentIntentLocal) chan proce
 					vSum = vSum.Add(vSum, x.Amount)
 					compare := intent.Amount.Cmp(vSum)
 					if compare > 0 {
-						status <- processing.Verified
+						status <- xutil.Verified
 						break verifiedLoop
 					}
 				}
