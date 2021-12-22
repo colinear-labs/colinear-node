@@ -67,6 +67,7 @@ func SpawnBtcBlockNotifyServer() {
 		go func() {
 			// Only works for BtcProcessors ((((theoretically))))
 			Processors[name].(*btc.BtcProcessor).NewBlockRpcEvents <- hash
+			fmt.Printf("Pushed new %s block hash %s to processor.\n", name, hash)
 		}()
 
 	})
