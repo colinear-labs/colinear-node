@@ -5,7 +5,7 @@ Processes P2P payments for protocol-to-be-named.
 
 ## Installation & Setup
 
-don't lol
+Work in progress
 
 ## Development
 
