@@ -1,6 +1,6 @@
 <div align="center">
-<h1>Node</h1>
-Processes P2P payments for protocol-to-be-named.
+<h1>Colinear Full Node</h1>
+Processes P2P payment intents.
 </div>
 
 ## Installation & Setup
