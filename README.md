@@ -5,7 +5,7 @@ Processes P2P payment intents.
 
 ## Installation & Setup
 
-don't lol
+Work in progress
 
 ## Development
 
